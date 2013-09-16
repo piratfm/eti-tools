@@ -4,8 +4,8 @@ eti-tools
 ETI conversion software
 
 Additional libraries are needed:
-* biTStream - for transport stream handling
-* libfec - for Reed-Solomon FEC.
+* [biTStream](http://www.videolan.org/developers/bitstream.html) - for transport stream handling
+* [libfec](http://mmbtools.crc.ca/content/view/39/65/) - for Reed-Solomon FEC.
 
 ts2na
 ===============
