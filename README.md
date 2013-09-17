@@ -23,3 +23,11 @@ eti_na2ni - is ETI-NA to ETI-NI converter. This tool automatically detects E1-sy
 
 The output stream will be 6144-bytes aligned raw ETI-NI stream.
 
+eti_ni2http
+===============
+eti_ni2http - is ETI-NI to http converter. This tool converts eti-stream to mp2 and relay it to icecast2 server.
+
+    usage: ./eti_ni2http [--list] [--delay] [-i <inputfile>] [-c <config_file>]
+
+Use "--list" option to find SID's and station names of the streams inside ETI.
+The "--delay" option have to be used when you are doing offline-relaying (from the file, not from the stream). So in that case application will wait 24ms after each eti frame, to make pseudo-realtime streaming.
