@@ -195,6 +195,8 @@ int feed_x_pad_short(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan
 		chan->pad_bytes_left -= bytes2get;
 		//WARN("DLS: pad_fillness=%d, pad_bytes_left=%d", chan->pad_fillness, chan->pad_bytes_left);
 		if(chan->pad_bytes_left == 0 && (chan->pad_last_fl == 1 || chan->pad_last_fl == 3)) {
+			chan->pad_data[chan->pad_fillness] = '\0';
+			chan->pad_fillness++;
 			//print_bytes((char*)chan->pad_data, chan->pad_fillness);
 			return 1;
 		}
