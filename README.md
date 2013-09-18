@@ -6,6 +6,8 @@ ETI conversion software
 Additional libraries are needed:
 * [biTStream](http://www.videolan.org/developers/bitstream.html) - for transport stream handling
 * [libfec](http://mmbtools.crc.ca/content/view/39/65/) - for Reed-Solomon FEC.
+* [libshout](http://www.icecast.org/download.php) - for NI-to-HTTP converter.
+
 
 ts2na
 ===============
@@ -31,3 +33,31 @@ eti_ni2http - is ETI-NI to http converter. This tool converts eti-stream to mp2 
 
 Use "--list" option to find SID's and station names of the streams inside ETI.
 The "--delay" option have to be used when you are doing offline-relaying (from the file, not from the stream). So in that case application will wait 24ms after each eti frame, to make pseudo-realtime streaming.
+
+The application also parses FIC for auto-detecting of station name and X-PAD for setting current song titles.
+
+Config sample:
+
+    [server]
+    host:       localhost
+    port:       8000
+    user:       source
+    password:   hackme
+    
+    [channel]
+    mount:      r5_live
+    sid:        0xc228
+    
+    [channel]
+    name:       Custom channel name2
+    mount:      r1
+    sid:        0xc221
+    
+    [channel]
+    #stream name will be auto-detected
+    #name:       Custom channel name3
+    mount:      r6music
+    sid:        0xc22b
+
+In [server] section the parameters of icecast server must be setted.
+In [channel] sections at least service-id of the channel and mount-point on the icecast server must be provided. To get list of service-id's, use "eti_ni2http --list -i <inputfile>"
