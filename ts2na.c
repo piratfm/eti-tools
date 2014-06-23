@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <getopt.h>
-#include <bitstream/mpeg/ts.h>
+#include "ts.h"
 
 #define DEBUG(format, ...) fprintf (stderr, "DEBUG: "format"\n", ## __VA_ARGS__)
 #define  INFO(format, ...) fprintf (stderr, "INFO:  "format"\n", ## __VA_ARGS__)
@@ -26,7 +26,7 @@ int main(int i_argc, char **ppsz_argv)
     int c;
     FILE *inputfile=stdin;
     FILE *outputfile=stdout;
-    uint16_t offset=12, pid=0x0426;
+    int offset=12, pid=0x0426;
     int i_last_cc = -1;
     
     static const struct option long_options[] = {
@@ -42,10 +42,18 @@ int main(int i_argc, char **ppsz_argv)
         switch (c) {
         case 'p':
             pid=strtoul(optarg, NULL, 0);
+            if(pid >= 8192) {
+                ERROR("bad pid value: %d!", pid);
+                exit(1);
+            }
             break;
 
         case 's':
-            offset=strtoul(optarg, NULL, 0);
+            offset=strtol(optarg, NULL, 0);
+            if(offset >= 184 || offset <= -4) {
+                ERROR("bad offset value: %d!", offset);
+                exit(1);
+            }
             break;
 
         case 'i':
@@ -71,19 +79,18 @@ int main(int i_argc, char **ppsz_argv)
         }
     }
 
+
     INFO("Using pid: 0x%04x (%d)", pid, pid);
     unsigned long int packets=0;
-
     while (!feof(inputfile) && !ferror(inputfile)) {
         uint8_t p_ts[TS_SIZE];
-        size_t i_ret = fread(p_ts, sizeof(p_ts), 1, inputfile);
+        size_t i_ret = fread(p_ts, TS_SIZE, 1, inputfile);
         if (i_ret != 1) {
         	WARN("Can't read input ts");
         	break;
         }
         if (ts_validate(p_ts)) {
-            uint16_t i_pid = ts_get_pid(p_ts);
-            if(i_pid==pid) {
+            if(offset >= 0 &&  ts_get_pid(p_ts)==pid) {
             	if(i_last_cc > 0 && (0x0f & (i_last_cc+1)) != ts_get_cc(p_ts)) {
             		WARN("TS Discontinuity");
             	}
@@ -104,7 +111,29 @@ int main(int i_argc, char **ppsz_argv)
                 	break;
                 }
                 packets++;
+            } else if(offset < 0) {
+            	uint8_t *payload = &p_ts[TS_HEADER_SIZE + offset];
+            	if(p_ts+TS_SIZE < payload || p_ts > payload) {
+                	ERROR("payload is out of ts by %ld bytes", payload-p_ts+TS_SIZE);
+                	break;
+            	}
+
+            	size_t o_ret = fwrite(payload, p_ts+TS_SIZE-payload, 1, outputfile);
+                if (o_ret != 1) {
+                	WARN("Can't write output ts");
+                	break;
+                }
+                packets++;
             }
+        } else {
+            do {
+                memmove(p_ts, &p_ts[1], TS_SIZE-1);
+                size_t i_ret = fread(&p_ts[TS_SIZE-1], 1, 1, inputfile);
+                if (i_ret != 1) {
+                	WARN("Can't read input ts");
+                	break;
+                }
+            } while (!ts_validate(p_ts) && !feof(inputfile) && !ferror(inputfile));
         }
     }
 

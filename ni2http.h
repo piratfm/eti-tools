@@ -9,6 +9,7 @@
 #define ETI_NI2HTTP_H_
 
 #include <inttypes.h>
+#include <endian.h>
 #include <netinet/in.h>
 #include <shout/shout.h>
 
@@ -66,6 +67,13 @@ typedef struct ni2http_channel_s {
 
 	int payload_size;				// Size of the payload
 
+	int is_dabplus;
+	uint8_t *dabplus_data;
+	void *dabplus_rs;
+	int dabplus_frame;
+
+	int extract_dabplus;
+	int extract_pad;
 	uint8_t pad_data[STR_BUF_SIZE];
 	int pad_fillness;
 	int pad_bytes_left;
@@ -87,6 +95,7 @@ typedef struct ni2http_server_s {
 
 typedef struct {
 	union {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 		/* reverse order for little-endian */
 		struct {
 			uint32_t		fl:11;
@@ -96,12 +105,26 @@ typedef struct {
 			uint32_t		ficf:1;
 			uint32_t		fct:8;
 		};
+#elif __BYTE_ORDER == __BIG_ENDIAN
+		/* reverse order for little-endian */
+		struct {
+			uint32_t		fct:8;
+			uint32_t		ficf:1;
+			uint32_t		nst:7;
+			uint32_t		fp:3;
+			uint32_t		mid:2;
+			uint32_t		fl:11;
+		};
+#else
+#error "Unknown system endian"
+#endif
 		uint32_t		val;
 	};
 } fc_t;
 
 typedef struct {
 	union {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 		/* reverse order for little-endian */
 		struct {
 			uint32_t		stl:10;
@@ -109,6 +132,17 @@ typedef struct {
 			uint32_t		sad:10;
 			uint32_t		scid:6;
 		};
+#elif __BYTE_ORDER == __BIG_ENDIAN
+		/* reverse order for little-endian */
+		struct {
+			uint32_t		scid:6;
+			uint32_t		sad:10;
+			uint32_t		tpl:6;
+			uint32_t		stl:10;
+		};
+#else
+#error "Unknown system endian"
+#endif
 		uint32_t		val;
 	};
 } sstc_t;
@@ -121,5 +155,15 @@ extern ni2http_server_t ni2http_server;
 
 /* In parse_config.c */
 int parse_config( char *filepath );
+
+/* In wfcrc.c */
+int crccheck(unsigned char* buf, int len);
+int crc16check(unsigned char* buf, int len);
+
+/* In wffirecrc.c */
+int firecrccheck(unsigned char* buf);
+
+#define DABPLUS
+
 
 #endif /* ETI_NI2HTTP_H_ */

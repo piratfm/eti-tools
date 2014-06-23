@@ -103,6 +103,9 @@ struct selsrv {
 	int sid;
 };
 
+#include <endian.h>
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 /* FIG Header */
 struct fig_hdr {
 	unsigned flen    : 5;
@@ -231,6 +234,139 @@ struct datim {
 	unsigned Rfu     : 1;
 };
 
+#elif __BYTE_ORDER == __BIG_ENDIAN
+/* FIG Header */
+struct fig_hdr {
+	unsigned ftype   : 3;
+	unsigned flen    : 5;
+};
+
+struct fig_0 {
+	unsigned cn      : 1;
+	unsigned oe      : 1;
+	unsigned pd      : 1;
+	unsigned extn    : 5;
+};
+
+struct fig_1 {
+	unsigned charset : 4;
+	unsigned oe      : 1;
+	unsigned extn    : 3;
+};
+
+/* Used by fig_0_0() */
+struct ensinf {
+	unsigned ChgFlg  : 2;
+	unsigned AlrmFlg : 1;
+	unsigned CIFCntH : 5;
+	unsigned CIFCntL : 8;
+};
+
+/* Used by fig_0_1() Long Form */
+struct subchorg_l {
+	unsigned SubChId   : 6;
+	unsigned StartAddr : 10;
+	unsigned LongForm  : 1;
+	unsigned Opt       : 3;
+	unsigned ProtLvl   : 2;
+	unsigned SubChSz   : 10;
+};
+/* Used by fig_0_1() Short Form (padded for alignment) */
+struct subchorg_s {
+	unsigned SubChId   : 6;
+	unsigned StartAddr : 10;
+	unsigned LongForm  : 1;
+	unsigned TableSw   : 1;
+	unsigned TabIndx   : 6;
+	unsigned           : 8;
+};
+
+/* Used by fig_0_2 - streamed audio */
+struct mscstau {
+	unsigned TMId    : 2;
+	unsigned ASCTy   : 6;
+	unsigned SubChId : 6;
+	unsigned Primary : 1;
+	unsigned CAFlag  : 1;
+};
+/* Used by fig_0_2 - streamed data */
+struct mscstdat {
+	unsigned TMId    : 2;
+	unsigned DSCTy   : 6;
+	unsigned SubChId : 6;
+	unsigned Primary : 1;
+	unsigned CAFlag  : 1;
+};
+/* Used by fig_0_2 */
+struct fidc {
+	unsigned TMId    : 2;
+	unsigned DSCTy   : 6;
+	unsigned FIDCId  : 6;
+	unsigned Primary : 1;
+	unsigned CAFlag  : 1;
+};
+/* Used by fig_0_2 - packet data */
+struct mscpktdat {
+	unsigned TMId    : 2;
+	unsigned SCId    : 12;
+	unsigned Primary : 1;
+	unsigned CAFlag  : 1;
+};
+/* Used by fig_0_2 */
+struct lcn{
+	unsigned Local   : 1;
+	unsigned CAId    : 3;
+	unsigned NumSCmp : 4;
+};
+/* Used by fig_0_2 */
+struct ssid {
+	unsigned CntryId : 4;
+	unsigned SrvRef  : 12;
+};
+/* Used by fig_0_2 */
+struct lsid {
+	unsigned ExCC    : 8;
+	unsigned CntryId : 4;
+	unsigned SrvRef  : 20;
+};
+
+/* Used by fig_0_3 */
+struct servcomp1 {
+	unsigned SubChId : 6;
+	unsigned PktAddr : 10;
+	unsigned SCCA    : 16;
+};
+/* Used by fig_0_3 (padded for alignment) */
+struct servcomp2 {
+	unsigned SCId    : 12;
+	unsigned Rfa     : 3;
+	unsigned SCCAFlg : 1;
+	unsigned DGFlag  : 1;
+	unsigned Rfu     : 1;
+	unsigned DSCTy   : 6;
+	unsigned         : 8;
+};
+
+/* Used by fig_0_10 */
+struct utcl {
+	unsigned UTCSec  : 6;
+	unsigned UTCmsec : 10;
+};
+/* Used by fig_0_10 */
+struct datim {
+	unsigned Rfu     : 1;
+	unsigned MJD     : 17;
+	unsigned LSI     : 1;
+	unsigned ConfInd : 1;
+	unsigned UTCFlg  : 1;
+	unsigned UTCHour : 5;
+	unsigned UTCMin  : 6;
+};
+
+#else
+#error "Unknown system endian"
+#endif
+
 /* Used by fig_1_0 */
 struct el {
 	short eid;
@@ -245,12 +381,24 @@ struct psl {
 	short CharFlgFld;
 };
 
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 /* Used by fig_1_4 */
 struct sclf {
 	unsigned SCIds : 4;
 	unsigned Rfa   : 3;
 	unsigned PD    : 1;
 };
+#elif __BYTE_ORDER == __BIG_ENDIAN
+/* Used by fig_1_4 */
+struct sclf {
+	unsigned PD    : 1;
+	unsigned Rfa   : 3;
+	unsigned SCIds : 4;
+};
+#else
+#error "Unknown system endian"
+#endif
+
 /* Used by fig_1_4 */
 struct scl {
 	short CharFlgFld;

@@ -29,7 +29,7 @@
 /* socket programming */
 #include <netdb.h>
 
-#include "eti_ni2http.h"
+#include "ni2http.h"
 
 
 static void process_statement_server( char* name, char* value, int line_num )
@@ -100,7 +100,12 @@ static void process_statement_channel( char* name, char* value, int line_num )
 
 	} else if (strcmp( "url", name ) == 0) { 
 		strncpy( chan->url, value, STR_BUF_SIZE);
-		
+
+	} else if (strcmp( "extract_pad", name ) == 0) {
+		chan->extract_pad = atoi( value );
+	} else if (strcmp( "extract_dabplus", name ) == 0) {
+		chan->extract_dabplus = atoi( value );
+
 	} else {
 		fprintf(stderr, "Error parsing configuation line %d: invalid statement in section 'channel'.\n", line_num);
 		exit(-1);
@@ -134,7 +139,7 @@ int parse_config( char *filepath )
 	while( !feof( file ) ) {
 		line_num++;
 		
-		fgets( line, STR_BUF_SIZE, file );
+		if(!fgets( line, STR_BUF_SIZE, file )) break;
 		
 		// Ignore lines starting with a #
 		if (line[0] == '#') continue;
@@ -176,6 +181,9 @@ int parse_config( char *filepath )
 
 				chan->num = channel_count;
 				chan->shout = NULL;
+				chan->extract_dabplus = 1;
+				chan->extract_pad = 1;
+
 				
 				strcpy( section, ptr );
 				channels[ channel_count ] = chan;

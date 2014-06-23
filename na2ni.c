@@ -1,4 +1,10 @@
 
+/* Uncomment this if u want to enable Forwarded Error Correction for ETI-NA stream 
+ * It will use more CPU cycles.
+ **/
+//#define HAVE_FEC
+
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -7,8 +13,12 @@
 #include <ctype.h>
 #include <getopt.h>
 #include <math.h>
-#include <fec.h>
 
+
+
+#ifdef HAVE_FEC
+#include <fec.h>
+#endif
 
 #define E1_FRAME_LEN				32
 #define FRAMES_IN_BLOCK				8
@@ -32,7 +42,11 @@
 
 static void usage(const char *psz)
 {
+#ifdef HAVE_FEC
     fprintf(stderr, "usage: %s [--no-fec] [-i <inputfile>] [-o <outputfile>]\n", psz);
+#else
+    fprintf(stderr, "usage: %s [-i <inputfile>] [-o <outputfile>]\n", psz);
+#endif
     exit(EXIT_FAILURE);
 }
 
@@ -299,6 +313,7 @@ int eti_superblocks_deinterleave(uint8_t *eti_superblocks_ptr, uint8_t *eti_supe
 			}
 		}
 
+#ifdef HAVE_FEC
 		if(!no_fec) {
 			for(row=0;row<INTERLEAVE_TABLE_ROWS;row++) {
 				//print_bytes((char *) &eti_deint[row*INTERLEAVE_TABLE_COLS], INTERLEAVE_TABLE_COLS);
@@ -316,6 +331,8 @@ int eti_superblocks_deinterleave(uint8_t *eti_superblocks_ptr, uint8_t *eti_supe
 				}
 			}
 		}
+#endif
+
 		eti_superblock += E1_FRAME_LEN*FRAMES_IN_BLOCK*BLOCKS_IN_SUPERBLOCK;
 		eti_deint += INTERLEAVE_TABLE_COLS*INTERLEAVE_TABLE_ROWS;
 
@@ -433,8 +450,11 @@ int main(int i_argc, char **ppsz_argv)
         }
     }
 
+#ifdef HAVE_FEC
 	WARN("Forwarded error correction %s", no_fec ? "disabled" : "enabled");
-
+#else
+	WARN("Forwarded error correction disabled (NOT COMPILED)");
+#endif
 	/* space for 2 ETI frames for bitwise seeking */
     uint8_t p_e1_search_block[E1_FRAME_LEN*FRAMES_IN_BLOCK*2];
     size_t i_ret = fread(p_e1_search_block, E1_FRAME_LEN*FRAMES_IN_BLOCK, 2, inputfile);
@@ -464,7 +484,7 @@ int main(int i_argc, char **ppsz_argv)
     //got E1 frame bytes
 
     //add 1 block for sync search
-    uint8_t eti_multiframe[E1_FRAME_LEN*(FRAMES_IN_MULTIFRAME + FRAMES_IN_BLOCK)];
+    uint8_t eti_multiframe[E1_FRAME_LEN*(FRAMES_IN_MULTIFRAME + FRAMES_IN_BLOCK + E1_FRAME_LEN)];
 //    DEBUG("input: (pre-offset:%02x)", pre_offset_bits);
 //    print_bytes((char*)read_ptr, E1_FRAME_LEN*2);
     uint8_t *eti_frames_ptr = &eti_multiframe[0];
@@ -503,6 +523,7 @@ int main(int i_argc, char **ppsz_argv)
 			not_readed=0;
 
 		read_ptr = p_e1_search_block;
+
 		// at zero cycle - read frame
 		for(i=0;i<FRAMES_IN_BLOCK;i++) {
 			int readed_bytes = shift_frame_mem(read_ptr, &pre_offset_bits, 8-offset_bits_num, is_inverted,
@@ -524,7 +545,7 @@ int main(int i_argc, char **ppsz_argv)
 	eti_skip_frames += eti_skip_blocks*FRAMES_IN_BLOCK;
 	memmove(eti_frames_ptr, &eti_frames_ptr[eti_skip_frames*E1_FRAME_LEN], 	E1_FRAME_LEN*(multiframe_filling - eti_skip_frames));
 	multiframe_filling -= eti_skip_frames;
-	assert(multiframe_filling >= 0 && multiframe_filling <= FRAMES_IN_MULTIFRAME);
+	assert(multiframe_filling >= 0 && multiframe_filling < FRAMES_IN_MULTIFRAME + E1_FRAME_LEN);
 
 
 	/* Initialize a Reed-Solomon codec
@@ -539,7 +560,9 @@ int main(int i_argc, char **ppsz_argv)
 	 * R = 14 resulting in an RS(226,240) code.
 	 */
 	void *rs_handlers[2];
+#ifdef HAVE_FEC
 	if(!no_fec) {
+
 		rs_handlers[0] = init_rs_char(8, 0x187, 120, 1, 5, 15);
 		rs_handlers[1] = init_rs_char(8, 0x187, 120, 1, 14, 15);
 
@@ -548,6 +571,7 @@ int main(int i_argc, char **ppsz_argv)
 			exit(1);
 		}
 	}
+#endif
 
 	uint8_t eti_mutiframe_deint[INTERLEAVE_TABLE_ROWS*INTERLEAVE_TABLE_COLS*SUPERBLOCKS_IN_MULTIFRAME];
 	uint8_t eti_ni_frame[ETI_NI_RAW_SIZE];
@@ -599,10 +623,13 @@ read_again:
     fclose(inputfile);
     fclose(outputfile);
 
+#ifdef HAVE_FEC
     if(!no_fec) {
     	free_rs_char(rs_handlers[0]);
     	free_rs_char(rs_handlers[1]);
     }
+#endif
+
     return 0;
 }
 

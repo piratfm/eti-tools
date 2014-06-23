@@ -10,15 +10,19 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/time.h>
-
+#include <endian.h>
 #include <math.h>
-#include <fec.h>
 
 #include "wfficproc.h"
 #include "figs.h"
 
-#include "eti_ni2http.h"
+#include "ni2http.h"
 
+//#define HAVE_FEC
+
+#ifdef HAVE_FEC
+#include <fec.h>
+#endif
 
 int Interrupted=0;
 
@@ -109,6 +113,8 @@ void print_bytes(char *bytes, int len)
 typedef struct {
 	union {
 		/* reverse order for little-endian */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+/* Used by fig_1_4 */
 		struct {
 			uint16_t		Z:1;
 			uint16_t		CI_flag:1;
@@ -116,12 +122,26 @@ typedef struct {
 			uint16_t		L1_data:6;
 			uint16_t		F_PAD_type:2;
 		};
+#elif __BYTE_ORDER == __BIG_ENDIAN
+/* Used by fig_1_4 */
+		struct {
+			uint16_t		F_PAD_type:2;
+			uint16_t		L1_data:6;
+			uint16_t		L_data:6;
+			uint16_t		CI_flag:1;
+			uint16_t		Z:1;
+		};
+#else
+#error "Unknown system endian"
+#endif
 		uint16_t		val;
 	};
 } f_pad_t;
 
 typedef struct {
 	union {
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 		/* reverse order for little-endian */
 		struct {
 			uint16_t		Rfa:4;
@@ -131,13 +151,95 @@ typedef struct {
 			uint16_t		F_L:2;
 			uint16_t		T:1;
 		};
+#elif __BYTE_ORDER == __BIG_ENDIAN
+		/* reverse order for little-endian */
+		struct {
+			uint16_t		T:1;
+			uint16_t		F_L:2;
+			uint16_t		C_flag:1;
+			uint16_t		Field_1:4;
+			uint16_t		Field_2:4;
+			uint16_t		Rfa:4;
+		};
+#else
+#error "Unknown system endian"
+#endif
+
 		uint16_t		val;
 	};
 } x_pad_dls_t;
 
 
+int fill_dls_pad(uint8_t *data_ptr, int len, uint8_t start_flag, ni2http_channel_t *chan)
+{
+	//print_bytes((char*)data_ptr, len);
+	if(start_flag) {
+		x_pad_dls_t dls;
+		dls.val = data_ptr[len - 1] << 8 | data_ptr[len - 2];
+
+		//WARN("DLS: T=%d, F_L=%d, C_flag=%d, Field_1=%d, Field_2=%d", dls.T, dls.F_L, dls.C_flag, dls.Field_1, dls.Field_2);
+
+		if(chan->title_switcher == dls.T)
+			return 0;
+
+		if(dls.F_L > 1) {
+			chan->pad_fillness=0;
+		}
+
+		if(!dls.C_flag && dls.Field_1 < STR_BUF_SIZE) {
+			chan->pad_bytes_left = dls.Field_1 + 1;
+		} else if(dls.C_flag && dls.Field_1 == 1) {
+			chan->pad_data[0] = '\0';
+			//shout set empty title.
+			return 1;
+		}
+
+		if(dls.F_L == 1 || dls.F_L == 3) {
+			chan->title_switcher = dls.T;
+		}
+
+//		chan->pad_data[chan->pad_fillness] = data_ptr[0];
+//		chan->pad_fillness++;
+		len-=2;
+		chan->pad_last_fl = dls.F_L;
+		//WARN("DLS[0]: pad_fillness=%d, pad_bytes_left=%d", chan->pad_fillness, chan->pad_bytes_left);
+	}
 
 
+	if (chan->pad_bytes_left && len > 0) {
+		int bytes2get = chan->pad_bytes_left > len ? len : chan->pad_bytes_left;
+		//WARN("DLS: bytes2get=%d", bytes2get);
+		if(chan->pad_fillness + bytes2get > STR_BUF_SIZE) {
+			WARN("too large pad");
+			chan->pad_fillness=0;
+			chan->pad_bytes_left=0;
+		}
+
+		int idx=0;
+		while(bytes2get > idx) {
+			//WARN("DLS: chan->pad_data[%d+(%d - %d)] = data_ptr[%d - %d + %d]", chan->pad_fillness, bytes2get, idx, len, bytes2get, idx);
+			chan->pad_data[chan->pad_fillness+((bytes2get-1) - idx)] = data_ptr[len - bytes2get + idx];
+			idx++;
+		}
+
+		//print_bytes((char*)chan->pad_data, chan->pad_fillness);
+
+		chan->pad_fillness   += bytes2get;
+		chan->pad_bytes_left -= bytes2get;
+		if(chan->pad_bytes_left == 0 && (chan->pad_last_fl == 1 || chan->pad_last_fl == 3)) {
+			chan->pad_data[chan->pad_fillness] = '\0';
+			chan->pad_fillness++;
+			//WARN("DLS: FULL pad_fillness=%d, pad_bytes_left=%d", chan->pad_fillness, chan->pad_bytes_left);
+			//print_bytes((char*)chan->pad_data, chan->pad_fillness);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
+
+#if 0
 int feed_x_pad_short(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan)
 {
 	if(ci_flag) {
@@ -207,6 +309,103 @@ int feed_x_pad_short(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan
 	//print_bytes((char*)data_ptr, 4);
 	return 0;
 }
+#endif
+
+const int pad_sizes_idx[] = { 4, 6, 8, 12, 16, 24, 32, 48 };
+
+int feed_x_pad(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan, uint8_t x_pad_ind, int start_pos)
+{
+	int ret=0;
+	if(x_pad_ind == 1) {
+		/* short X-PAD */
+		if(data_ptr[0] == 0x00 && data_ptr[1] == 0x00 && data_ptr[2] == 0x00 && data_ptr[3] == 0x00)
+			return 0;
+		if(fill_dls_pad(data_ptr, ci_flag ? 3 : 4, data_ptr[3] == 0x02 && ci_flag, chan)){
+			INFO("chan[%d] song: %s", chan->sid, chan->pad_data);
+			shout_metadata_t *metadata = shout_metadata_new();
+			shout_metadata_add(metadata, "song", (char *) chan->pad_data);
+			shout_set_metadata(chan->shout, metadata);
+			shout_metadata_free(metadata);
+		}
+	}
+
+	if(x_pad_ind != 2)
+		return 0;
+
+	if(ci_flag) {
+		if(data_ptr[0] == 0x00 && data_ptr[1] == 0x00 && data_ptr[2] == 0x00 && data_ptr[3] == 0x00)
+			return 0;
+
+		//uint8_t subchLen = data_ptr[3] & 0x07;
+		//uint8_t appTyp = data_ptr[3] >> 3;
+		//WARN("FEED_X_PAD: CI=%d: %02x %02x %02x %02x", ci_flag, data_ptr[0], data_ptr[1], data_ptr[2], data_ptr[3]);
+		//print_bytes((char*)data_ptr+4-32, 32);
+
+		int data_pos = 3, subfield_idx=0;
+		uint8_t sizes[4] = {0,0,0,0};
+		uint8_t types[4] = {0,0,0,0};
+		uint8_t appTyp, subfieldLen;
+		do {
+			appTyp = data_ptr[data_pos] & 0x1f;
+			subfieldLen = data_ptr[data_pos] >> 5;
+			data_pos--;
+
+			if(appTyp == 0x1f) {
+				appTyp = data_ptr[data_pos];
+				data_pos--;
+			}
+
+
+			if(appTyp != 0) {
+				types[subfield_idx] = appTyp;
+				sizes[subfield_idx] = pad_sizes_idx[subfieldLen];
+				subfield_idx++;
+			}
+
+			//WARN("FEED_X_PAD[%d|%d]: appTyp=%d, subchLen=%d", data_pos, subfield_idx, appTyp, pad_sizes_idx[subfieldLen]);
+
+		} while (data_pos >=0 && appTyp != 0);
+		//WARN("FEED_X_PAD bytes left=%d", data_pos);
+
+		int idx;
+		uint8_t *pad_data_subch_start = data_ptr + (data_pos) + 1; //data_ptr + data_pos;
+		for(idx=0;idx<subfield_idx;idx++) {
+			pad_data_subch_start -= sizes[idx]; //may be -1;
+			if(pad_data_subch_start < data_ptr-start_pos) {
+				WARN("X_PAD: BAD pad_data_subch_start: %p, data_ptr=%p, pos=%d, start==%p", pad_data_subch_start, data_ptr, start_pos, data_ptr-start_pos);
+				break;
+			}
+
+			//FIXME: if next subfield is dls again, then this may not work fine.
+			switch(types[idx]) {
+			case 0x02:
+			case 0x03:
+				//WARN("FEED_X_PAD[%d]: appTyp=%d, subchLen=%d:", idx, types[idx], sizes[idx]);
+				//print_bytes((char*)pad_data_subch_start, sizes[idx]);
+				if(fill_dls_pad(pad_data_subch_start, sizes[idx], types[idx] == 0x02, chan)) {
+					INFO("chan[%d] song: %s", chan->sid, chan->pad_data);
+					shout_metadata_t *metadata = shout_metadata_new();
+					shout_metadata_add(metadata, "song", (char *) chan->pad_data);
+					shout_set_metadata(chan->shout, metadata);
+					shout_metadata_free(metadata);
+				}
+				break;
+			default:
+				//WARN("FEED_X_PAD[%d]: UNUSED appTyp=%d, subchLen=%d:", idx, types[idx], sizes[idx]);
+				//print_bytes((char*)pad_data_subch_start, sizes[idx]);
+				break;
+			}
+		}
+
+
+	} else {
+		WARN("FEED_X_PAD: CI=%d, not implemented!", ci_flag);
+	}
+
+	//if start_of_frame = data_ptr - start_pos;
+	//return 1 if have full text here.
+	return ret;
+}
 
 
 int process_pad(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
@@ -214,25 +413,36 @@ int process_pad(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 #if 1
 	f_pad_t f_pad;
 	f_pad.val = data_ptr[data_len-2] << 8 | data_ptr[data_len-1];
-	//INFO("F_PAD: %02x %02x, ci=%d, type=%d.", data_ptr[data_len-2], data_ptr[data_len-1], f_pad.CI_flag, f_pad.F_PAD_type);
-	//print_bytes((char*)data_ptr+data_len-16, 16);
+	//INFO("F_PAD: %02x %02x, ci=%d, type=%d:", data_ptr[data_len-2], data_ptr[data_len-1], f_pad.CI_flag, f_pad.F_PAD_type);
+	//print_bytes((char*)data_ptr, data_len);
 	if(f_pad.F_PAD_type==0){
 		uint8_t x_pad_ind = f_pad.L1_data >> 4;
 		uint8_t x_pad_L = f_pad.L1_data & 0x0f;
 		//INFO("X_PAD: L1: %02x (val:%04x) ind=%d, L=%d", f_pad.L1_data, f_pad.val, x_pad_ind, x_pad_L);
 
-		if(x_pad_ind!=1 || x_pad_L != 0) {
+		if(!x_pad_ind)
+			return 0;
+
+		//check if it x-pad or x-pad with DRC info
+		if((x_pad_ind!=1 && x_pad_ind!=2) || (x_pad_L != 0 && x_pad_L != 1)) {
 			print_bytes((char*)data_ptr+data_len-16, 16);
 			WARN("X_PAD: L1: %02x (val:%04x) ind=%d, L=%d", f_pad.L1_data, f_pad.val, x_pad_ind, x_pad_L);
 			return 0;
 		}
-		if(feed_x_pad_short(&data_ptr[data_len-2-4-4], f_pad.CI_flag, chan)) {
-			INFO("chan[%d] song: %s", chan->sid, chan->pad_data);
-			shout_metadata_t *metadata = shout_metadata_new();
-			shout_metadata_add(metadata, "song", (char *) chan->pad_data);
-			shout_set_metadata(chan->shout, metadata);
-			shout_metadata_free(metadata);
+
+		uint8_t *x_pad_ptr;
+		int x_pad_pos;
+		if(chan->is_dabplus) {
+			x_pad_ptr = &data_ptr[data_len-2-4];
+			x_pad_pos = data_len-2-4;
+		} else {
+			x_pad_ptr = &data_ptr[data_len-2-4-4];
+			x_pad_pos = data_len-2-4-4;
 		}
+
+		//WARN("X_PAD: x_pad_ptr: %p, pos=%d", x_pad_ptr, x_pad_pos);
+		//WARN("X_PAD: x_pad_min: %p, len=%d", data_ptr, data_len);
+		feed_x_pad(x_pad_ptr, f_pad.CI_flag, chan, x_pad_ind, x_pad_pos);
 		//print_bytes((char*)data_ptr+data_len-16, 16);
 
 		//In-house information, or no information;
@@ -242,6 +452,302 @@ int process_pad(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 	}
 #endif
 	return 1;
+}
+
+struct stream_parms {
+	int rfa;
+	int dac_rate;
+	int sbr_flag;
+	int ps_flag;
+	int aac_channel_mode;
+	int mpeg_surround_config;
+};
+
+
+int process_dabplus_wfadts(int framelen, struct stream_parms *sp, uint8_t *header)
+{
+	struct adts_fixed_header {
+		unsigned                     : 4;
+		unsigned home                : 1;
+		unsigned orig                : 1;
+		unsigned channel_config      : 3;
+		unsigned private_bit         : 1;
+		unsigned sampling_freq_index : 4;
+		unsigned profile             : 2;
+		unsigned protection_absent   : 1;
+		unsigned layer               : 2;
+		unsigned id                  : 1;
+		unsigned syncword            : 12;
+	} fh;
+	struct adts_variable_header {
+		unsigned                            : 4;
+		unsigned num_raw_data_blks_in_frame : 2;
+		unsigned adts_buffer_fullness       : 11;
+		unsigned frame_length               : 13;
+		unsigned copyright_id_start         : 1;
+		unsigned copyright_id_bit           : 1;
+	} vh;
+#if 0
+	unsigned char header[7];
+#endif
+	/* 32k 16k 48k 24k */
+	const unsigned short samptab[] = {0x5, 0x8, 0x3, 0x6};
+
+	fh.syncword = 0xfff;
+	fh.id = 0;
+	fh.layer = 0;
+	fh.protection_absent = 1;
+	fh.profile = 0;
+	fh.sampling_freq_index = samptab[sp->dac_rate << 1 | sp->sbr_flag];
+
+	fh.private_bit = 0;
+	switch (sp->mpeg_surround_config) {
+	case 0:
+		if (sp->sbr_flag && !sp->aac_channel_mode && sp->ps_flag)
+			fh.channel_config = 2; /* Parametric stereo */
+		else
+			fh.channel_config = 1 << sp->aac_channel_mode ;
+		break;
+	case 1:
+		fh.channel_config = 6;
+		break;
+	default:
+		fprintf(stderr,"Unrecognized mpeg_surround_config ignored\n");
+		if (sp->sbr_flag && !sp->aac_channel_mode && sp->ps_flag)
+			fh.channel_config = 2; /* Parametric stereo */
+		else
+			fh.channel_config = 1 << sp->aac_channel_mode ;
+		break;
+	}
+
+	fh.orig = 0;
+	fh.home = 0;
+	vh.copyright_id_bit = 0;
+	vh.copyright_id_start = 0;
+	vh.frame_length = framelen + 7;  /* Includes header length */
+	vh.adts_buffer_fullness = 1999;
+	vh.num_raw_data_blks_in_frame = 0;
+#if 0
+	header[0] = fh.syncword >> 4;
+	header[1] = (fh.syncword & 0xf) << 4;
+	header[1] |= fh.id << 3;
+	header[1] |= fh.layer << 1;
+	header[1] |= fh.protection_absent;
+        header[2] = fh.profile << 6;
+	header[2] |= fh.sampling_freq_index << 2;
+	header[2] |= fh.private_bit << 1;
+	header[2] |= (fh.channel_config & 0x4);
+	header[3] = (fh.channel_config & 0x3) << 6;
+	header[3] |= fh.orig << 5;
+	header[3] |= fh.home << 4;
+	header[3] |= vh.copyright_id_bit << 3;
+	header[3] |= vh.copyright_id_start << 2;
+	header[3] |= (vh.frame_length >> 11) & 0x3;
+	header[4] = (vh.frame_length >> 3) & 0xff;
+	header[5] = (vh.frame_length & 0x7) << 5;
+	header[5] |= vh.adts_buffer_fullness >> 6;
+	header[6] = (vh.adts_buffer_fullness & 0x3f) << 2;
+	header[6] |= vh.num_raw_data_blks_in_frame;
+	//fwrite(header, sizeof(header), 1, stdout);
+#else
+	header[0] = fh.syncword >> 4;
+	header[1] = (fh.syncword & 0xf) << 4;
+	header[1] |= fh.id << 3;
+	header[1] |= fh.layer << 1;
+	header[1] |= fh.protection_absent;
+        header[2] = fh.profile << 6;
+	header[2] |= fh.sampling_freq_index << 2;
+	header[2] |= fh.private_bit << 1;
+	header[2] |= (fh.channel_config & 0x4);
+	header[3] = (fh.channel_config & 0x3) << 6;
+	header[3] |= fh.orig << 5;
+	header[3] |= fh.home << 4;
+	header[3] |= vh.copyright_id_bit << 3;
+	header[3] |= vh.copyright_id_start << 2;
+	header[3] |= (vh.frame_length >> 11) & 0x3;
+	header[4] = (vh.frame_length >> 3) & 0xff;
+	header[5] = (vh.frame_length & 0x7) << 5;
+	header[5] |= vh.adts_buffer_fullness >> 6;
+	header[6] = (vh.adts_buffer_fullness & 0x3f) << 2;
+	header[6] |= vh.num_raw_data_blks_in_frame;
+#endif
+
+	return 0;
+}
+
+
+int process_dabplus_pad(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
+{
+	uint8_t object_type = data_ptr[0] >> 5;
+	if(object_type == 0x04) {
+		/* HAVE DSE */
+		int bytes_readed=0;
+		  /* Element Instance Tag */
+		//uint8_t elementInstanceTag = (data_ptr[0] >> 1) & 0x0f;
+		//uint8_t dataByteAlignFlag = data_ptr[0] & 0x01;
+		bytes_readed++;
+		int count = data_ptr[1];
+		bytes_readed++;
+        if (count == 255) {
+		    count += data_ptr[2]; /* EscCount */
+			bytes_readed++;
+		}
+
+		//ERROR("DAB+ PAD: object_type=%d, elementInstanceTag=%d, dataByteAlignFlag=%d count=%d, start=%p\n",
+		//		object_type, elementInstanceTag, dataByteAlignFlag, count, data_ptr);
+		//print_bytes((char*)data_ptr + bytes_readed, count);
+		process_pad(data_ptr + bytes_readed, count, chan);
+	}
+	return 0;
+}
+
+int process_dabplus(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
+{
+	int s = chan->bitrate/8;
+	unsigned char cbuf[120];
+	int audio_super_frame_size = data_len * 5 - s * 10; /* Excludes error prot bytes */
+
+	//ERROR("DAB+ [%d] br: %d:", data_len, chan->bitrate);
+	//print_bytes((char*)data_ptr, data_len);
+
+	if (!chan->dabplus_frame && firecrccheck(data_ptr)) {
+		//ERROR("DAB+ firecrccheck: OK");
+		memcpy(chan->dabplus_data, data_ptr, data_len);
+		chan->dabplus_frame++;
+
+	} else  if (chan->dabplus_frame > 0) {
+		memcpy(chan->dabplus_data + data_len * chan->dabplus_frame++, data_ptr, data_len);
+	}
+
+	int i,j;
+	if (chan->dabplus_frame > 4) {
+		chan->dabplus_frame=0;
+		for (i = 0; i < s; i++) {
+			/* Dis-interleaving is necessary prior to RS decoding */
+			for (j = 0; j < 120; j++)
+				cbuf[j] = *(chan->dabplus_data + s * j + i);
+#ifdef HAVE_FEC
+			int errs = decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
+			/* fprintf(stderr,"errs = %d\n",errs);*/
+#endif
+			/* Write checked/corrected data back to sfbuf */
+			for (j = 0; j < 110; j++)
+				*(chan->dabplus_data + s * j + i) = cbuf[j];
+		}
+
+		const int austab[4] = {4, 2, 6, 3};
+		struct stream_parms sp;
+		unsigned int au_start[6] = {0,0,0,0,0,0};
+		int au_size[6] = {0,0,0,0,0,0};
+
+		sp.rfa = (*(chan->dabplus_data+2) & 0x80) && 1;
+		sp.dac_rate = (*(chan->dabplus_data+2) & 0x40) && 1;
+		sp.sbr_flag = (*(chan->dabplus_data+2) & 0x20) && 1;
+		sp.aac_channel_mode = (*(chan->dabplus_data+2) & 0x10) && 1;
+		sp.ps_flag = (*(chan->dabplus_data+2) & 0x8) && 1;
+		sp.mpeg_surround_config = *(chan->dabplus_data+2) & 0x7;
+		int num_aus = austab[sp.dac_rate << 1 | sp.sbr_flag];
+		switch (num_aus) {
+		case 2:
+			au_start[0] = 5;
+			au_start[1] = (*(chan->dabplus_data + 3) << 4) + ((*(chan->dabplus_data + 4)) >> 4);
+			au_size[0] = au_start[1] - au_start[0];
+			au_size[1] = audio_super_frame_size - au_start[1];
+			break;
+		case 3:
+			au_start[0] = 6;
+			au_start[1] = (*(chan->dabplus_data + 3) << 4) + ((*(chan->dabplus_data + 4)) >> 4);
+			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
+			au_size[0] = au_start[1] - au_start[0];
+			au_size[1] = au_start[2] - au_start[1];
+			au_size[2] = audio_super_frame_size - au_start[2];
+			break;
+		case 4:
+			au_start[0] = 8;
+			au_start[1] = (*(chan->dabplus_data + 3) << 4) + (*(chan->dabplus_data + 4) >> 4);
+			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
+			au_start[3] = (*(chan->dabplus_data + 6) << 4) + (*(chan->dabplus_data + 7) >> 4);
+			au_size[0] = au_start[1] - au_start[0];
+			au_size[1] = au_start[2] - au_start[1];
+			au_size[2] = au_start[3] - au_start[2];
+			au_size[3] = audio_super_frame_size - au_start[3];
+			break;
+		case 6:
+			au_start[0] = 11;
+			au_start[1] = (*(chan->dabplus_data + 3) << 4) + (*(chan->dabplus_data + 4) >> 4);
+			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
+			au_start[3] = (*(chan->dabplus_data + 6) << 4) + (*(chan->dabplus_data + 7) >> 4);
+			au_start[4] = ((*(chan->dabplus_data + 7) & 0x0f) << 8) + *(chan->dabplus_data + 8);
+			au_start[5] = (*(chan->dabplus_data + 9) << 4) + (*(chan->dabplus_data + 10) >> 4);
+			au_size[0] = au_start[1] - au_start[0];
+			au_size[1] = au_start[2] - au_start[1];
+			au_size[2] = au_start[3] - au_start[2];
+			au_size[3] = au_start[4] - au_start[3];
+			au_size[4] = au_start[5] - au_start[4];
+			au_size[5] = audio_super_frame_size - au_start[5];
+			break;
+		default: fprintf(stderr,"num_aus = %d is invalid\n",num_aus);
+
+			break;
+		}
+		for (i = 0; i < num_aus; i++) {
+			/* Invert CRC bits */
+			*(chan->dabplus_data + au_start[i] + au_size[i] - 2) ^= 0xff;
+			*(chan->dabplus_data + au_start[i] + au_size[i] - 1) ^= 0xff;
+			/* AUs with bad CRC are silently ignored */
+			if (crccheck(chan->dabplus_data + au_start[i], au_size[i])) {
+				//wfadts(au_size[i]-2, &sp);
+				//fwrite(chan->dabplus_data + au_start[i], sizeof(unsigned char), au_size[i] - 2, stdout);
+				if(chan->extract_pad) {
+					process_dabplus_pad(chan->dabplus_data + au_start[i], au_size[i] - 2, chan);
+				}
+				uint8_t buff2[1024];
+				process_dabplus_wfadts(au_size[i]-2, &sp, buff2);
+				memcpy(buff2 + 7, chan->dabplus_data + au_start[i], au_size[i] - 2);
+				//fwrite(buff2, au_size[i] - 2 + 7, 1, stdout);
+				int result = shout_send_raw(chan->shout, buff2, au_size[i] - 2 + 7);
+				if (result < 0) {
+					ERROR("failed to send data to server for SID %d.\n", chan->sid);
+					ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
+			#if 0
+					shout_close( chan->shout );
+					shout_sync(chan->shout);
+					int result = shout_open( chan->shout );
+					if (result != SHOUTERR_SUCCESS) {
+						fprintf(stderr,"  Failed to connect to server: %s.\n", shout_get_error(chan->shout));
+					}
+			#endif
+				}
+
+			}
+		}
+
+	}
+
+	return 1;
+}
+
+
+int process_mp2(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
+{
+	if(chan->extract_pad && !chan->is_dabplus)
+		process_pad(data_ptr, data_len, chan);
+
+	//fwrite(data_ptr, data_len, 1, to_save);
+	int result = shout_send_raw(chan->shout, data_ptr, data_len);
+	if (result < 0) {
+		ERROR("failed to send data to server for SID %d.\n", chan->sid);
+		ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
+#if 0
+		shout_close( chan->shout );
+		shout_sync(chan->shout);
+		int result = shout_open( chan->shout );
+		if (result != SHOUTERR_SUCCESS) {
+			fprintf(stderr,"  Failed to connect to server: %s.\n", shout_get_error(chan->shout));
+		}
+#endif
+	}
+	return 0;
 }
 
 int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
@@ -254,21 +760,10 @@ int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
 		uint8_t *data_ptr = &msc_ptr[prev_len*8];
 		int data_len = sstc.stl*8;
 
-		process_pad(data_ptr, data_len, chan);
-
-		//fwrite(data_ptr, data_len, 1, to_save);
-		int result = shout_send_raw(chan->shout, data_ptr, data_len);
-		if (result < 0) {
-			ERROR("failed to send data to server for SID %d.\n", chan->sid);
-			ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
-#if 0
-			shout_close( chan->shout );
-			shout_sync(chan->shout);
-			int result = shout_open( chan->shout );
-			if (result != SHOUTERR_SUCCESS) {
-				fprintf(stderr,"  Failed to connect to server: %s.\n", shout_get_error(chan->shout));
-			}
-#endif
+		if(chan->is_dabplus && chan->extract_dabplus) {
+			process_dabplus(data_ptr, data_len, chan);
+		} else {
+			process_mp2(data_ptr, data_len, chan);
 		}
 	}
 
@@ -312,13 +807,27 @@ static int init_shout_channel( ni2http_channel_t *chan )
 
 
 	// Set server parameters
-	shout_set_agent( shout, "eti_ni2http" );
+	shout_set_agent( shout, "ni2http" );
 	shout_set_host( shout, ni2http_server.host );
 	shout_set_port( shout, ni2http_server.port );
 	shout_set_user( shout, ni2http_server.user );
 	shout_set_password( shout, ni2http_server.password );
 	shout_set_protocol( shout, ni2http_server.protocol );
-	shout_set_format( shout, SHOUT_FORMAT_MP3 );
+	if(!chan->is_dabplus)
+		shout_set_format( shout, SHOUT_FORMAT_MP3 );
+	else if (chan->extract_dabplus){
+#ifdef SHOUT_FORMAT_AAC
+		shout_set_format( shout, SHOUT_FORMAT_AAC );
+#else
+		shout_set_format( shout, SHOUT_FORMAT_MP3 );
+#endif
+	} else {
+#ifdef SHOUT_FORMAT_CUSTOM
+		shout_set_format( shout, SHOUT_FORMAT_CUSTOM );
+#else
+		shout_set_format( shout, SHOUT_FORMAT_MP3 );
+#endif
+	}
 
 	shout_set_name( shout, chan->name );
 	shout_set_mount( shout, chan->mount );
@@ -435,7 +944,7 @@ int main(int i_argc, char **ppsz_argv)
 		do {
 			size_t i_ret = fread(p_ni_search_block + bytes_readed, ETI_NI_RAW_SIZE - bytes_readed, 1, inputfile);
 			if(i_ret != 1){
-				ERROR("Can't read from file in %d loop, total readed: %d", count, total_readed);
+				ERROR("Can't read from file in %ld loop, total readed: %d", count, total_readed);
 				exit(1);
 			}
 			total_readed += ETI_NI_RAW_SIZE - bytes_readed;
@@ -512,6 +1021,7 @@ int main(int i_argc, char **ppsz_argv)
 					continue;
 				}
 				channels[ch]->bitrate = s_data->pa->bitrate;
+				channels[ch]->is_dabplus = s_data->pa->dabplus;
 				if(channels[ch]->name[0] == '\0')
 					strncpy(channels[ch]->name, s_data->label, sizeof(s_data->label));
 
@@ -525,6 +1035,20 @@ int main(int i_argc, char **ppsz_argv)
 						idx_found=1;
 						channels_mapped++;
 						init_shout_channel(channels[ch]);
+
+						if(channels[ch]->dabplus_data) {
+							free(channels[ch]->dabplus_data);
+							channels[ch]->dabplus_data=NULL;
+						}
+
+						if(channels[ch]->is_dabplus) {
+							channels[ch]->dabplus_data = malloc(channels[ch]->bitrate/8 * 120);
+#ifdef HAVE_FEC
+							channels[ch]->dabplus_rs = init_rs_char(8, 0x11d, 0, 1, 10, 135);
+#endif
+						}
+
+
 						break;
 					}
 				}
@@ -577,6 +1101,14 @@ int main(int i_argc, char **ppsz_argv)
 			shout_close( channels[i]->shout );
 			shout_free( channels[i]->shout );
 		}
+
+		if(channels[i]->dabplus_data)
+			free(channels[i]->dabplus_data);
+
+#ifdef HAVE_FEC
+		if(channels[i]->is_dabplus)
+			free(channels[i]->dabplus_rs);
+#endif
 
 		free( channels[i] );
 	}
