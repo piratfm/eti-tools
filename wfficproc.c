@@ -48,7 +48,6 @@ struct ens_info einf;
 
 unsigned char selstr[10];
 int fibcnt = 0;
-static char lbuf[80];
 
 
 int ficinit(struct ens_info *einf)
@@ -239,6 +238,7 @@ int user_select_service(struct ens_info* e, struct selsrv *sel_srv)
 	}
 
 	/* selected services */
+	//static char lbuf[80];
 	i = 1;//wfgetnum(lbuf);
 
 	if (i != -1) {

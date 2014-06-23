@@ -19,6 +19,8 @@
     along with OpenDAB.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "figs.h"
+
 int process_fic2(unsigned char *msc_ptr, int ficl, int mode_id);
 
 extern struct service* find_service(struct ens_info*, int);

@@ -24,6 +24,7 @@
 
 #define _XOPEN_SOURCE 1
 #include <unistd.h>
+#include <endian.h>
 
 /* 
 ** Pack 4 bytes into an int in usable order
@@ -62,11 +63,13 @@ short spack(unsigned char *f)
 */
 void iswab(int *i)
 {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	int j;
 
 	swab(i, &j, sizeof(int));
 	*i = j;
 	return;
+#endif
 }
 
 /*
@@ -74,11 +77,13 @@ void iswab(int *i)
 */
 void sswab(short *s)
 {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	short j;
 
 	swab(s, &j, sizeof(short));
 	*s = j;
 	return;
+#endif
 }
 
 /*
@@ -87,7 +92,8 @@ void sswab(short *s)
 */
 void bigend(unsigned int *i)
 {
-     unsigned int t;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	unsigned int t;
 
     ((unsigned char*)&t)[0] = ((unsigned char*)i)[3];
     ((unsigned char*)&t)[1] = ((unsigned char*)i)[2];
@@ -95,5 +101,6 @@ void bigend(unsigned int *i)
     ((unsigned char*)&t)[3] = ((unsigned char*)i)[0];
 
     *i = t;
+#endif
 }
 	

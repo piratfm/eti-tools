@@ -149,7 +149,6 @@ int fig_5(int figlen, unsigned char *fig)
 */
 int fig_0_0(int figlen, int pd, int oe, int cn, unsigned char* fig)
 {
-	unsigned int OccChg;  /* : 8; Value doesn't fit into bitfield */
 	short f;
 	struct ensinf ei;
 	unsigned short EId;
@@ -171,8 +170,8 @@ int fig_0_0(int figlen, int pd, int oe, int cn, unsigned char* fig)
 		EId, ei.ChgFlg, ei.AlrmFlg, ei.CIFCntH, ei.CIFCntL);
 #endif
 	if (ei.ChgFlg > 0) {
-		OccChg = *(fig + 4);
 #if DEBUG > 0
+		unsigned int OccChg = *(fig + 4);/* : 8; Value doesn't fit into bitfield */
 		fprintf(stderr, " OccChg=%d",OccChg);
 #endif
 	}
@@ -382,7 +381,8 @@ int fig_0_3(int figlen, int pd, int oe, int cn, unsigned char* fig)
 */
 int fig_0_10(int figlen, int pd, int oe, int cn, unsigned char* fig)
 {
-	int f, y, m, d, wd;
+#if DEBUG > 0
+	int f, y, m, d;
 	short g;
 	struct datim dt;
 	struct utcl ut;
@@ -398,20 +398,19 @@ int fig_0_10(int figlen, int pd, int oe, int cn, unsigned char* fig)
 		m -= 13;
 	} else
 		m--;
-	wd = ((dt.MJD + 2) % 7) + 1;
+	int wd = ((dt.MJD + 2) % 7) + 1;
 	y += 1900;
-#if DEBUG > 0
 	fprintf(stderr, "fig_0_10: Rfu=%d MJD=%d(y=%d m=%d d=%d wd=%d) LSI=%d ConfInd=%d UTCFlg=%d UTCHour=%d UTCMin=%d",
 		dt.Rfu,dt.MJD,y,m,d,wd,dt.LSI,dt.ConfInd,dt.UTCFlg,dt.UTCHour,dt.UTCMin);
-#endif
+
 	if (dt.UTCFlg) {
 		g = spack(fig+2);
 		memcpy(&ut, &g, sizeof(struct utcl));
-#if DEBUG > 0
+
 		fprintf(stderr, " UTCSec=%d UTCmsec=%d",ut.UTCSec,ut.UTCmsec);
-#endif
+
 	}
-#if DEBUG > 0
+
 	fprintf(stderr, "\n");
 #endif
 	return 0;
