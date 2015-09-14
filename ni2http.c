@@ -1059,7 +1059,7 @@ int main(int i_argc, char **ppsz_argv)
 						INFO("sid[%d]: channel_map[%d] = channel[%d]", s_data->sid, s_data->pa->startaddr, idx);
 						idx_found=1;
 						channels_mapped++;
-						if(channels[ch]->mount) {
+						if(strlen(channels[ch]->mount) > 0) {
 							init_shout_channel(channels[ch]);
 							channels[ch]->title_switcher=-1;
 						}
