@@ -63,6 +63,12 @@ Config sample:
     #which playable by the internet-radio players, enabled by default
     #If this option disabled, this stream can be directly passed to ODR-DabMod
     extract_dabplus: 1
+    
+    [channel]
+    # just write to file, no streaming to server.
+    sid:        0xc223
+    extract_pad: 0
+    file:       /run/station7.fifo
 
 In [server] section the parameters of icecast server must be setted.
-In [channel] sections at least service-id of the channel and mount-point on the icecast server must be provided. To get list of service-id's, use "eti_ni2http --list -i <inputfile>"
+In [channel] sections at least service-id of the channel must be presented. If u wish to write stream to file, then use "file" to specify it's location. If stream to server is needed, then specify mount-point on the icecast server. To get list of service-id's, use "ni2http --list -i <inputfile>"
