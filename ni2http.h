@@ -8,6 +8,7 @@
 #ifndef ETI_NI2HTTP_H_
 #define ETI_NI2HTTP_H_
 
+#include <stdio.h>
 #include <inttypes.h>
 #include <endian.h>
 #include <netinet/in.h>
@@ -55,6 +56,8 @@ typedef struct ni2http_channel_s {
 	char url[STR_BUF_SIZE];		// Informational URL
 
 	shout_t *shout;				// libshout structure
+	char file_name[STR_BUF_SIZE];		// Informational URL
+        FILE *file;
 	int shout_state;
 	char is_public;				// announce existance?
 	char mount[STR_BUF_SIZE];	// mount point

@@ -71,6 +71,8 @@ static void process_statement_channel( char* name, char* value, int line_num )
 	} else if (strcmp( "mount", name ) == 0) { 
 		strncpy( chan->mount, value, STR_BUF_SIZE);
 		
+	} else if (strcmp( "file", name ) == 0) {
+		strncpy( chan->file_name, value, STR_BUF_SIZE);
 	} else if (strcmp( "sid", name ) == 0) {
 	
 		// Check PID is valid
@@ -181,6 +183,8 @@ int parse_config( char *filepath )
 
 				chan->num = channel_count;
 				chan->shout = NULL;
+				chan->file = NULL;
+				chan->file_name[0] = '\0';
 				chan->extract_dabplus = 1;
 				chan->extract_pad = 1;
 

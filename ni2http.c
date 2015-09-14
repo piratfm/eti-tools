@@ -11,6 +11,8 @@
 #include <netdb.h>
 #include <sys/time.h>
 #include <endian.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <math.h>
 
 #include "wfficproc.h"
@@ -322,10 +324,12 @@ int feed_x_pad(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan, uint
 			return 0;
 		if(fill_dls_pad(data_ptr, ci_flag ? 3 : 4, data_ptr[3] == 0x02 && ci_flag, chan)){
 			INFO("chan[%d] song: %s", chan->sid, chan->pad_data);
-			shout_metadata_t *metadata = shout_metadata_new();
-			shout_metadata_add(metadata, "song", (char *) chan->pad_data);
-			shout_set_metadata(chan->shout, metadata);
-			shout_metadata_free(metadata);
+			if(chan->shout) {
+				shout_metadata_t *metadata = shout_metadata_new();
+				shout_metadata_add(metadata, "song", (char *) chan->pad_data);
+				shout_set_metadata(chan->shout, metadata);
+				shout_metadata_free(metadata);
+			}
 		}
 	}
 
@@ -384,10 +388,12 @@ int feed_x_pad(uint8_t *data_ptr, uint8_t ci_flag, ni2http_channel_t *chan, uint
 				//print_bytes((char*)pad_data_subch_start, sizes[idx]);
 				if(fill_dls_pad(pad_data_subch_start, sizes[idx], types[idx] == 0x02, chan)) {
 					INFO("chan[%d] song: %s", chan->sid, chan->pad_data);
-					shout_metadata_t *metadata = shout_metadata_new();
-					shout_metadata_add(metadata, "song", (char *) chan->pad_data);
-					shout_set_metadata(chan->shout, metadata);
-					shout_metadata_free(metadata);
+					if(chan->shout) {
+						shout_metadata_t *metadata = shout_metadata_new();
+						shout_metadata_add(metadata, "song", (char *) chan->pad_data);
+						shout_set_metadata(chan->shout, metadata);
+						shout_metadata_free(metadata);
+					}
 				}
 				break;
 			default:
@@ -705,18 +711,28 @@ int process_dabplus(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 				process_dabplus_wfadts(au_size[i]-2, &sp, buff2);
 				memcpy(buff2 + 7, chan->dabplus_data + au_start[i], au_size[i] - 2);
 				//fwrite(buff2, au_size[i] - 2 + 7, 1, stdout);
-				int result = shout_send_raw(chan->shout, buff2, au_size[i] - 2 + 7);
-				if (result < 0) {
-					ERROR("failed to send data to server for SID %d.\n", chan->sid);
-					ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
+				int result;
+				if(chan->shout) {
+					result = shout_send_raw(chan->shout, buff2, au_size[i] - 2 + 7);
+					if (result < 0) {
+						ERROR("failed to send data to server for SID %d.\n", chan->sid);
+						ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
 			#if 0
-					shout_close( chan->shout );
-					shout_sync(chan->shout);
-					int result = shout_open( chan->shout );
-					if (result != SHOUTERR_SUCCESS) {
-						fprintf(stderr,"  Failed to connect to server: %s.\n", shout_get_error(chan->shout));
-					}
+						shout_close( chan->shout );
+						shout_sync(chan->shout);
+						int result = shout_open( chan->shout );
+						if (result != SHOUTERR_SUCCESS) {
+							fprintf(stderr,"  Failed to connect to server: %s.\n", shout_get_error(chan->shout));
+						}
 			#endif
+					}
+				}
+
+				if(chan->file) {
+					result = fwrite(buff2, au_size[i] - 2 + 7, 1, chan->file);
+					if(result != 1) {
+						ERROR("failed to write data to file for SID %d.\n", chan->sid);
+					}
 				}
 
 			}
@@ -734,7 +750,9 @@ int process_mp2(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 		process_pad(data_ptr, data_len, chan);
 
 	//fwrite(data_ptr, data_len, 1, to_save);
-	int result = shout_send_raw(chan->shout, data_ptr, data_len);
+  int result;
+  if(chan->shout) {
+	result = shout_send_raw(chan->shout, data_ptr, data_len);
 	if (result < 0) {
 		ERROR("failed to send data to server for SID %d.\n", chan->sid);
 		ERROR("  libshout: %s.\n", shout_get_error(chan->shout));
@@ -747,6 +765,15 @@ int process_mp2(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 		}
 #endif
 	}
+  }
+
+	if(chan->file) {
+		result = fwrite(data_ptr, data_len, 1, chan->file);
+		if(result != 1) {
+			ERROR("failed to write data to file for SID %d (%d): %s.\n", chan->sid, errno, strerror(errno));
+		}
+	}
+
 	return 0;
 }
 
@@ -756,7 +783,7 @@ int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
 	sstc.val = stc_ptr[4*idx] << 24 | stc_ptr[4*idx + 1] << 16 | stc_ptr[4*idx + 2] << 8 | stc_ptr[4*idx + 3];
 	//DEBUG("stream[%d]: scid=%d, sad=%d, tpl=%d, stl=%d", idx, sstc.scid, sstc.sad, sstc.tpl, sstc.stl);
 	ni2http_channel_t *chan = channel_map[sstc.sad];
-	if(chan && chan->shout) {
+	if(chan && (chan->shout || chan->file)) {
 		uint8_t *data_ptr = &msc_ptr[prev_len*8];
 		int data_len = sstc.stl*8;
 
@@ -860,8 +887,6 @@ static int init_shout_channel( ni2http_channel_t *chan )
 		ERROR("Failed to connect to server: %s.", shout_get_error(shout));
 		return 0;
 	}
-
-	chan->title_switcher=-1;
 
 	//INFO("shout=%p", chan->shout);
 	return 1;
@@ -1034,7 +1059,24 @@ int main(int i_argc, char **ppsz_argv)
 						INFO("sid[%d]: channel_map[%d] = channel[%d]", s_data->sid, s_data->pa->startaddr, idx);
 						idx_found=1;
 						channels_mapped++;
-						init_shout_channel(channels[ch]);
+						if(channels[ch]->mount) {
+							init_shout_channel(channels[ch]);
+							channels[ch]->title_switcher=-1;
+						}
+
+						if(strlen(channels[ch]->file_name) > 0) {
+							INFO("Writing to: %s", channels[ch]->file_name);
+							channels[ch]->file = fopen(channels[ch]->file_name, "a+");
+							if(!channels[ch]->file) {
+								INFO("sid[%d]: can't open output dump file %s.", s_data->sid, channels[ch]->file_name);
+							} else {
+								int fd_o = fileno(channels[ch]->file);
+								if (fcntl(fd_o, F_SETFL, fcntl(fd_o, F_GETFL) | O_NONBLOCK) == -1) {
+									INFO("sid[%d]: can't set non-block output for file %s.", s_data->sid, channels[ch]->file_name);
+								}
+							}
+							channels[ch]->title_switcher=-1;
+						}
 
 						if(channels[ch]->dabplus_data) {
 							free(channels[ch]->dabplus_data);
@@ -1100,6 +1142,10 @@ int main(int i_argc, char **ppsz_argv)
 		if (channels[i]->shout) {
 			shout_close( channels[i]->shout );
 			shout_free( channels[i]->shout );
+		}
+
+		if(channels[i]->file) {
+			fclose(channels[i]->file);
 		}
 
 		if(channels[i]->dabplus_data)
