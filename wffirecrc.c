@@ -76,8 +76,10 @@ int firecrccheck(unsigned char* buf)
 	int len = 9;
 	unsigned char *ptr = buf + 2;
 
-	while (len--) {
-		crc = (crc << 8) ^ ftab[((crc >> 8) ^ *ptr++) & 0xff];
+	while (len) {
+		crc = (crc << 8) ^ ftab[((crc >> 8) ^ (*ptr)) & 0xff];
+		len--;
+		ptr++;
 	}
 	
 	return ((((crc >> 8) & 0xff) == *buf) && (crc & 0xff) == *(buf+1));

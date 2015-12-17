@@ -70,8 +70,9 @@ int crccheck(unsigned char* buf, int len)
 	unsigned short crc = 0xffff;
 	unsigned char *ptr = buf;
 
-	while (len--) {
-		crc = (crc << 8) ^ crctab[((crc >> 8) ^ *ptr++) & 0xff];
+	while (ptr < buf+len) {
+		crc = (crc << 8) ^ crctab[((crc >> 8) ^ (*ptr)) & 0x00ff];
+		ptr++;
 	}
 	
 	return (crc == 0);
