@@ -81,7 +81,7 @@ int firecrccheck(unsigned char* buf)
 		len--;
 		ptr++;
 	}
-	
+
 	return ((((crc >> 8) & 0xff) == *buf) && (crc & 0xff) == *(buf+1));
 }
 

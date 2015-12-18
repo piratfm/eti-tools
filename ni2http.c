@@ -610,96 +610,107 @@ int process_dabplus_pad(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan
 int process_dabplus(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 {
 	int s = chan->bitrate/8;
-	unsigned char cbuf[120];
 	int audio_super_frame_size = data_len * 5 - s * 10; /* Excludes error prot bytes */
 
 	//ERROR("DAB+ [%d] br: %d:", data_len, chan->bitrate);
 	//print_bytes((char*)data_ptr, data_len);
 
-	if (!chan->dabplus_frame && firecrccheck(data_ptr)) {
-		//ERROR("DAB+ firecrccheck: OK");
-		memcpy(chan->dabplus_data, data_ptr, data_len);
-		chan->dabplus_frame++;
-
-	} else  if (chan->dabplus_frame > 0) {
-		memcpy(chan->dabplus_data + data_len * chan->dabplus_frame++, data_ptr, data_len);
+	if (!chan->dabplus_frame && !firecrccheck(data_ptr)) {
+		ERROR("DAB+ firecrccheck: ERROR");
+		return 0;
 	}
+
+	memcpy(&chan->dabplus_data[data_len * chan->dabplus_frame], data_ptr, data_len);
+	chan->dabplus_frame++;
 
 	int i,j;
 	if (chan->dabplus_frame > 4) {
 		chan->dabplus_frame=0;
 		for (i = 0; i < s; i++) {
+			uint8_t cbuf[120];
 			/* Dis-interleaving is necessary prior to RS decoding */
 			for (j = 0; j < 120; j++)
-				cbuf[j] = *(chan->dabplus_data + s * j + i);
+				cbuf[j] = chan->dabplus_data[s * j + i];
 #ifdef HAVE_FEC
 			int errs = decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
 			/* fprintf(stderr,"errs = %d\n",errs);*/
 #endif
 			/* Write checked/corrected data back to sfbuf */
 			for (j = 0; j < 110; j++)
-				*(chan->dabplus_data + s * j + i) = cbuf[j];
+				chan->dabplus_data[s * j + i] = cbuf[j];
 		}
 
 		const int austab[4] = {4, 2, 6, 3};
 		struct stream_parms sp;
-		unsigned int au_start[6] = {0,0,0,0,0,0};
-		int au_size[6] = {0,0,0,0,0,0};
+		uint16_t au_start[6] = {0,0,0,0,0,0};
+		int16_t au_size[6] = {0,0,0,0,0,0};
 
-		sp.rfa = (*(chan->dabplus_data+2) & 0x80) && 1;
-		sp.dac_rate = (*(chan->dabplus_data+2) & 0x40) && 1;
-		sp.sbr_flag = (*(chan->dabplus_data+2) & 0x20) && 1;
-		sp.aac_channel_mode = (*(chan->dabplus_data+2) & 0x10) && 1;
-		sp.ps_flag = (*(chan->dabplus_data+2) & 0x8) && 1;
-		sp.mpeg_surround_config = *(chan->dabplus_data+2) & 0x7;
+		sp.rfa = (chan->dabplus_data[2] & 0x80) && 1;
+		sp.dac_rate = (chan->dabplus_data[2] & 0x40) && 1;
+		sp.sbr_flag = (chan->dabplus_data[2] & 0x20) && 1;
+		sp.aac_channel_mode = (chan->dabplus_data[2] & 0x10) && 1;
+		sp.ps_flag = (chan->dabplus_data[2] & 0x8) && 1;
+		sp.mpeg_surround_config = chan->dabplus_data[2] & 0x7;
 		int num_aus = austab[sp.dac_rate << 1 | sp.sbr_flag];
 		switch (num_aus) {
 		case 2:
 			au_start[0] = 5;
-			au_start[1] = (*(chan->dabplus_data + 3) << 4) + ((*(chan->dabplus_data + 4)) >> 4);
-			au_size[0] = au_start[1] - au_start[0];
-			au_size[1] = audio_super_frame_size - au_start[1];
+			au_start[1] = (chan->dabplus_data[3] << 4) + ((chan->dabplus_data[4]) >> 4);
+			if(au_start[1]) {
+				au_size[0] = au_start[1] - au_start[0];
+				au_size[1] = audio_super_frame_size - au_start[1];
+			}
 			break;
 		case 3:
 			au_start[0] = 6;
-			au_start[1] = (*(chan->dabplus_data + 3) << 4) + ((*(chan->dabplus_data + 4)) >> 4);
-			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
-			au_size[0] = au_start[1] - au_start[0];
-			au_size[1] = au_start[2] - au_start[1];
-			au_size[2] = audio_super_frame_size - au_start[2];
+			au_start[1] = (chan->dabplus_data[3] << 4) + ((chan->dabplus_data[4]) >> 4);
+			au_start[2] = ((chan->dabplus_data[4] & 0x0f) << 8) + chan->dabplus_data[5];
+			if(au_start[1] && au_start[2]) {
+				au_size[0] = au_start[1] - au_start[0];
+				au_size[1] = au_start[2] - au_start[1];
+				au_size[2] = audio_super_frame_size - au_start[2];
+			}
 			break;
 		case 4:
 			au_start[0] = 8;
-			au_start[1] = (*(chan->dabplus_data + 3) << 4) + (*(chan->dabplus_data + 4) >> 4);
-			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
-			au_start[3] = (*(chan->dabplus_data + 6) << 4) + (*(chan->dabplus_data + 7) >> 4);
-			au_size[0] = au_start[1] - au_start[0];
-			au_size[1] = au_start[2] - au_start[1];
-			au_size[2] = au_start[3] - au_start[2];
-			au_size[3] = audio_super_frame_size - au_start[3];
+			au_start[1] = (chan->dabplus_data[3] << 4) + (chan->dabplus_data[4] >> 4);
+			au_start[2] = ((chan->dabplus_data[4] & 0x0f) << 8) + chan->dabplus_data[5];
+			au_start[3] = (chan->dabplus_data[6] << 4) + (chan->dabplus_data[7] >> 4);
+			if(au_start[1] && au_start[2] && au_start[3]) {
+				au_size[0] = au_start[1] - au_start[0];
+				au_size[1] = au_start[2] - au_start[1];
+				au_size[2] = au_start[3] - au_start[2];
+				au_size[3] = audio_super_frame_size - au_start[3];
+			}
 			break;
 		case 6:
 			au_start[0] = 11;
-			au_start[1] = (*(chan->dabplus_data + 3) << 4) + (*(chan->dabplus_data + 4) >> 4);
-			au_start[2] = ((*(chan->dabplus_data + 4) & 0x0f) << 8) + *(chan->dabplus_data + 5);
-			au_start[3] = (*(chan->dabplus_data + 6) << 4) + (*(chan->dabplus_data + 7) >> 4);
-			au_start[4] = ((*(chan->dabplus_data + 7) & 0x0f) << 8) + *(chan->dabplus_data + 8);
-			au_start[5] = (*(chan->dabplus_data + 9) << 4) + (*(chan->dabplus_data + 10) >> 4);
-			au_size[0] = au_start[1] - au_start[0];
-			au_size[1] = au_start[2] - au_start[1];
-			au_size[2] = au_start[3] - au_start[2];
-			au_size[3] = au_start[4] - au_start[3];
-			au_size[4] = au_start[5] - au_start[4];
-			au_size[5] = audio_super_frame_size - au_start[5];
+			au_start[1] = (chan->dabplus_data[3] << 4) + (chan->dabplus_data[4] >> 4);
+			au_start[2] = ((chan->dabplus_data[4] & 0x0f) << 8) + chan->dabplus_data[5];
+			au_start[3] = (chan->dabplus_data[6] << 4) + (chan->dabplus_data[7] >> 4);
+			au_start[4] = ((chan->dabplus_data[7] & 0x0f) << 8) + chan->dabplus_data[8];
+			au_start[5] = (chan->dabplus_data[9] << 4) + (chan->dabplus_data[10] >> 4);
+			if(au_start[1] && au_start[2] && au_start[3] && au_start[4] && au_start[5]) {
+				au_size[0] = au_start[1] - au_start[0];
+				au_size[1] = au_start[2] - au_start[1];
+				au_size[2] = au_start[3] - au_start[2];
+				au_size[3] = au_start[4] - au_start[3];
+				au_size[4] = au_start[5] - au_start[4];
+				au_size[5] = audio_super_frame_size - au_start[5];
+			}
 			break;
 		default: fprintf(stderr,"num_aus = %d is invalid\n",num_aus);
 
 			break;
 		}
 		for (i = 0; i < num_aus; i++) {
+			if(!au_size[i] || au_start[i] + au_size[i] < 2 || au_start[i] + au_size[i] > audio_super_frame_size) {
+//				ERROR("Bad AU size, ignoring frame for SID %d.\n", chan->sid);
+				continue;
+			}
 			/* Invert CRC bits */
-			*(chan->dabplus_data + au_start[i] + au_size[i] - 2) ^= 0xff;
-			*(chan->dabplus_data + au_start[i] + au_size[i] - 1) ^= 0xff;
+			chan->dabplus_data[au_start[i] + au_size[i] - 2] ^= 0xff;
+			chan->dabplus_data[au_start[i] + au_size[i] - 1] ^= 0xff;
 			/* AUs with bad CRC are silently ignored */
 			if (crccheck(chan->dabplus_data + au_start[i], au_size[i])) {
 				//wfadts(au_size[i]-2, &sp);
