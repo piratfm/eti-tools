@@ -6,6 +6,7 @@ ETI conversion software
 Additional libraries are needed:
 * [libfec](http://mmbtools.crc.ca/content/view/39/65/) - for Reed-Solomon FEC, may be enabled/disabled.
 * [libshout](http://www.icecast.org/download.php) - for NI-to-HTTP converter (used modified one that supports aac and raw streaming).
+* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in Makefile if this option is needed.
 
 
 ts2na
@@ -70,5 +71,11 @@ Config sample:
     extract_pad: 0
     file:       /run/station7.fifo
 
-In [server] section the parameters of icecast server must be setted.
-In [channel] sections at least service-id of the channel must be presented. If u wish to write stream to file, then use "file" to specify it's location. If stream to server is needed, then specify mount-point on the icecast server. To get list of service-id's, use "ni2http --list -i <inputfile>"
+    [channel]
+    # pass DAB/DAB+ stream to ODR-DabMUX.
+    sid:        0xc224
+    extract_pad: 0
+    zmq:       tcp://127.0.0.1:9001
+
+In [server] section the parameters of Icecast2 server must be setted.
+In [channel] sections at least service-id of the channel must be presented. If u wish to write stream to file, then use "file" to specify it's location. If stream to Icecast2 server is needed, then specify mount-point on the icecast server. If you wish to re-stream to ODR-DabMUX then set destination of the ZeroMQ URI to muxing server. To get list of service-id's, use "ni2http --list -i <inputfile>"

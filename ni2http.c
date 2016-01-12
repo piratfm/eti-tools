@@ -26,6 +26,10 @@
 #include <fec.h>
 #endif
 
+#ifdef HAVE_ZMQ
+#include <zmq.h>
+#endif
+
 int Interrupted=0;
 
 int channel_count=0;
@@ -34,6 +38,7 @@ ni2http_channel_t *channels[MAX_CHANNEL_COUNT];
 ni2http_channel_t *channel_map[MAX_CU_COUNT];
 ni2http_server_t ni2http_server;
 
+void *zmq_context = NULL;
 
 #define ETI_NI_FSYNC0				0xb63a07ff
 #define ETI_NI_FSYNC1				0x49c5f8ff
@@ -790,13 +795,16 @@ int process_mp2(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 
 int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
 {
+	uint8_t *data_ptr;
+	int data_len;
+
 	sstc_t sstc;
 	sstc.val = stc_ptr[4*idx] << 24 | stc_ptr[4*idx + 1] << 16 | stc_ptr[4*idx + 2] << 8 | stc_ptr[4*idx + 3];
 	//DEBUG("stream[%d]: scid=%d, sad=%d, tpl=%d, stl=%d", idx, sstc.scid, sstc.sad, sstc.tpl, sstc.stl);
 	ni2http_channel_t *chan = channel_map[sstc.sad];
 	if(chan && (chan->shout || chan->file)) {
-		uint8_t *data_ptr = &msc_ptr[prev_len*8];
-		int data_len = sstc.stl*8;
+		data_ptr = &msc_ptr[prev_len*8];
+		data_len = sstc.stl*8;
 
 		if(chan->is_dabplus && chan->extract_dabplus) {
 			process_dabplus(data_ptr, data_len, chan);
@@ -804,6 +812,30 @@ int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
 			process_mp2(data_ptr, data_len, chan);
 		}
 	}
+
+#ifdef HAVE_ZMQ
+	if(chan && chan->zmq_sock) {
+		data_ptr = &msc_ptr[prev_len*8];
+		data_len = sstc.stl*8;
+		int frame_length = sizeof(struct zmq_frame_header) + data_len;
+
+		struct zmq_frame_header* header = malloc(frame_length);
+		uint8_t* txframe = ((uint8_t*)header) + sizeof(struct zmq_frame_header);
+		header->version          = 1;
+		header->encoder          = chan->is_dabplus ? ZMQ_ENCODER_FDK : ZMQ_ENCODER_TOOLAME;
+		header->datasize         = data_len;
+		header->audiolevel_left  = 0x1FFF; //alevel unknown
+		header->audiolevel_right = 0x1FFF;
+
+		memcpy(txframe, data_ptr, data_len);
+		int send_error = zmq_send(chan->zmq_sock, header, frame_length, ZMQ_DONTWAIT);
+		free(header);
+		if (send_error < 0) {
+			fprintf(stderr, "ZeroMQ send failed! %s\n", zmq_strerror(errno));
+		}
+	}
+#endif
+
 
 #if 0
 	//print_bytes((char*)data_ptr, data_len);
@@ -1155,6 +1187,11 @@ int main(int i_argc, char **ppsz_argv)
 			shout_free( channels[i]->shout );
 		}
 
+#ifdef HAVE_ZMQ
+		if (channels[i]->zmq_sock) {
+			zmq_close(channels[i]->zmq_sock);
+		}
+#endif
 		if(channels[i]->file) {
 			fclose(channels[i]->file);
 		}
@@ -1170,6 +1207,10 @@ int main(int i_argc, char **ppsz_argv)
 		free( channels[i] );
 	}
 
+#ifdef HAVE_ZMQ
+	if (zmq_context)
+		zmq_ctx_destroy(zmq_context);
+#endif
 	// Shutdown libshout
 	shout_shutdown();
 

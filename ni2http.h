@@ -42,7 +42,6 @@
 #define SERVER_PASSWORD_DEFAULT		"hackme"
 #define SERVER_PROTOCOL_DEFAULT		SHOUT_PROTOCOL_HTTP
 
-
 /* Structure containing single channel */
 typedef struct ni2http_channel_s {
 
@@ -82,7 +81,25 @@ typedef struct ni2http_channel_s {
 	int pad_bytes_left;
 	int title_switcher;
 	int pad_last_fl;
+	void *zmq_sock;   /* zmq socket */
 } ni2http_channel_t;
+
+#define ZMQ_ENCODER_FDK 1
+#define ZMQ_ENCODER_TOOLAME 2
+struct zmq_frame_header
+{
+    uint16_t version; // we support version=1 now
+    uint16_t encoder; // see ZMQ_ENCODER_XYZ
+
+    /* length of the 'data' field */
+    uint32_t datasize;
+
+    /* Audio level, peak, linear PCM */
+    int16_t audiolevel_left;
+    int16_t audiolevel_right;
+
+    /* Data follows this header */
+} __attribute__ ((packed));
 
 
 /* Structure server settings */
@@ -155,6 +172,9 @@ extern int channel_count;
 extern ni2http_channel_t *channel_map[MAX_CU_COUNT];
 extern ni2http_channel_t *channels[MAX_CHANNEL_COUNT];
 extern ni2http_server_t ni2http_server;
+
+extern void *zmq_context;
+
 
 /* In parse_config.c */
 int parse_config( char *filepath );

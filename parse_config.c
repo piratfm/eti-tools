@@ -31,6 +31,9 @@
 
 #include "ni2http.h"
 
+#ifdef HAVE_ZMQ
+#include <zmq.h>
+#endif
 
 static void process_statement_server( char* name, char* value, int line_num )
 {
@@ -73,6 +76,17 @@ static void process_statement_channel( char* name, char* value, int line_num )
 		
 	} else if (strcmp( "file", name ) == 0) {
 		strncpy( chan->file_name, value, STR_BUF_SIZE);
+#ifdef HAVE_ZMQ
+	} else if (strcmp( "zmq", name ) == 0) {
+		//strncpy( chan->zmq_uri, value, STR_BUF_SIZE);
+		if(!zmq_context)
+			zmq_context = zmq_ctx_new();
+		chan->zmq_sock = zmq_socket(zmq_context, ZMQ_PUB);
+		fprintf(stderr, "Connecting ZMQ to %s\n", value);
+		if (zmq_connect(chan->zmq_sock, value) != 0) {
+			fprintf(stderr, "Error occurred during zmq_connect: %s\n", zmq_strerror(errno));
+		}
+#endif
 	} else if (strcmp( "sid", name ) == 0) {
 	
 		// Check PID is valid
@@ -184,6 +198,7 @@ int parse_config( char *filepath )
 				chan->num = channel_count;
 				chan->shout = NULL;
 				chan->file = NULL;
+				chan->zmq_sock = NULL;
 				chan->file_name[0] = '\0';
 				chan->extract_dabplus = 1;
 				chan->extract_pad = 1;
