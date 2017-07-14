@@ -25,6 +25,23 @@ na2ni - is ETI-NA to ETI-NI converter. This tool automatically detects E1-sync b
 
 The output stream will be 6144-bytes aligned raw ETI-NI stream.
 
+ETI edi2eti
+===============
+edi2eti - is EDI-AF or EDI-PF to ETI-NI converter. This tool automatically detects type of AF/PF packet type. Maximal deinterleaving depth is setted to 192ms to prevent high memory usage. Also it extracts ETI-LI content of the stream and incapsulate it into ETI-NI frames.
+Tool is able to receive multicast data and save converted stream ETI-file or publish it by ZeroMQ protcol. This tool is written to convert microwave links (WiFi or raw packet stream) to tcp-zeromq stream useable by EasyDABv2 module.
+
+    usage: ./edi2eti [-o <outputfile|zeromq-uri>] [ip:port]
+
+The output stream will be 6144-bytes aligned raw ETI-NI stream or local-port published ZeroMQ packet.
+
+Sample of receiving multicast stream and convert it to ZeroMQ:
+
+    ./edi2eti -o "zmq+tcp://*:18982"  232.20.10.1:12000
+
+Sample of receiving multicast stream and save to file:
+
+    ./edi2eti -o "out.eti"  232.20.10.1:12000
+
 ETI ni2http
 ===============
 ni2http - is ETI-NI to HTTP or ZeroMQ converter. This tool converts eti-stream to mp2/aac and relay it to icecast2 or ODR-DabMUX server.

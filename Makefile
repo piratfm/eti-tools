@@ -18,16 +18,19 @@ LDFLAGS=-lm
 #FEC_LDFLAGS:= -lfec
 
 
-all: cleanapps ts2na na2ni ni2http
+all: cleanapps ts2na na2ni ni2http edi2eti
+
+edi2eti:
+	gcc -g $(CFLAGS) -Wall -o edi2eti network.c af_parser.c pf_parser.c tag_parser.c crc.c eti_assembler.c logging.c edi2eti.c -lfec -lzmq
 
 ts2na:
-		gcc -g $(CFLAGS) -Wall -o ts2na ts2na.c
+	gcc -g $(CFLAGS) -Wall -o ts2na ts2na.c
 
 ts2na_dreambox:
-		gcc -g $(CFLAGS) -Wall -o ts2na ts2na.c tune.c
+	gcc -g $(CFLAGS) -Wall -o ts2na ts2na.c tune.c
 
 na2ni:
-		gcc -g $(CFLAGS) -Wall -o na2ni na2ni.c $(LDFLAGS) $(FEC_LDFLAGS)
+	gcc -g $(CFLAGS) -Wall -o na2ni na2ni.c $(LDFLAGS) $(FEC_LDFLAGS)
 
 ni2http:
 	test -f ./libshout-2.2.2/src/.libs/libshout.a || { tar -xvzf libshout-2.2.2.tar.gz; cd libshout-2.2.2; ./configure --enable-shared=no --enable-static=yes; make; cd ..; }
@@ -35,7 +38,7 @@ ni2http:
 
 cleanapps:
 		rm -f *.o
-		rm -f ts2na na2ni ni2http
+		rm -f ts2na na2ni ni2http edi2eti
 
 clean: cleanapps
 		if [ -f ./libshout-2.2.2/src/.libs/libshout.a ]; then cd libshout-2.2.2; make clean; cd ..;  fi;
