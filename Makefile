@@ -19,8 +19,8 @@ LDFLAGS+= -lzmq
 ##################################################
 # Uncomment this 2 lines if you want to enable FEC
 ##################################################
-#CFLAGS+= -DHAVE_FEC
-#LDFLAGS+= -lfec
+CFLAGS+= -DHAVE_FEC
+LDFLAGS+= -lfec
 
 
 all: cleanapps ni2http  ts2na na2ni edi2eti
