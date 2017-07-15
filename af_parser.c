@@ -14,7 +14,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#ifdef HAVE_FEC
 #include <fec.h>
+#endif
 
 #include "edi_parser.h"
 #include "crc.h"
@@ -28,7 +30,9 @@ edi_handler_t *initEDIHandle(int fmt, callback_t outCallback, void *priv_data)
 	edi_handler_t *h = calloc(1, sizeof(edi_handler_t));
 	h->eti_format = fmt;
 
+#ifdef HAVE_FEC
 	h->afb.m_rs_handler = init_rs_char(8, 0x11d, 1, 1, 255 - 207, ((1 << 8) - 1) - 255);
+#endif
 	h->write_cb = outCallback;
 	h->write_cb_priv = priv_data;
 	return h;
@@ -40,8 +44,9 @@ void closeEDIHandle(edi_handler_t *h)
 	msg_Log("EDI: stats: packets lost: %u/%u errors:%u/%u",
 			h->afb.PktLost, h->afb.PktCount, h->afb.errorsCorrected, h->afb.PktCount*h->afb.Plen);
 	if(h) {
+#ifdef HAVE_FEC
 		free_rs_char(h->afb.m_rs_handler);
-
+#endif
 		for(i=0;i<64;i++) {
 			if(h->eti.m_stc[i].mst) {
 				free(h->eti.m_stc[i].mst);
@@ -101,20 +106,9 @@ static int HandleAFPacket(edi_handler_t *h, uint8_t *edi_pkt, uint32_t pktsize)
     	msg_Log("EDI-AF: packet not supported, has no CRC");
         return -1;
     }
-#if 0
-    uint16_t crc = 0xffff;
-    for (i = 0; i < AFPACKET_HEADER_LEN + taglength; i++) {
-        crc = crc16(crc, &edi_pkt[i], 1);
-    }
-    crc ^= 0xffff;
 
-    uint16_t packet_crc = read_16b(edi_pkt + AFPACKET_HEADER_LEN + taglength);
-
-#endif
-	//msg_Dump(edi_pkt , pktsize);
-
-    //bool ok = checkCRC(edi_pkt, AFPACKET_HEADER_LEN + taglength + crclength);
-	bool ok = checkCRC(edi_pkt, AFPACKET_HEADER_LEN + taglength + crclength);
+    //this is checked at the second time if PS is used
+    bool ok = checkCRC(edi_pkt, AFPACKET_HEADER_LEN + taglength + crclength);
 
     if (!ok) {
     	msg_Log("EDI-AF: Packet crc wrong pos:%u max:%u", AFPACKET_HEADER_LEN + taglength, pktsize);

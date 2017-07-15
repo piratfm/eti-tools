@@ -19,7 +19,9 @@
 #include "network.h"
 #include "logging.h"
 
+#ifdef HAVE_ZMQ
 #include <zmq.h>
+#endif
 
 #define VERSION_ID "$Rev$"
 #define DEFAULT_TTL 16
@@ -41,16 +43,36 @@ char *ip = DEFAULT_HOST;
 static void usage(char *name) {
 	fprintf(
 			stderr,
-			"%s udp unicast/multicast tester.\n"
+			"%s udp unicast/multicast EDI-to-ETI coverter.\n"
 				"This is UDP unicast/multicast EDI-stream receiver that converts received stream to ETI-format %s.\n"
 				"Usage: %s [options] [address]:[port]\n"
-				"-v, --verbose           : Show more info (default: no)\n"
-				"-q, --quiet             : Minimum info (default: no)\n"
-				"-I, --interval <value>  : Application udp reception interval\n"
-				"-o, --output <file|url> : Output file path or zeromq url (default: stdout)\n"
-				"-a, --activity          : Dislay activity cursor (default: no)\n"
-				"-h, --help              : Show this help\n"
+				"-v, --verbose               : Show more info (default: no)\n"
+				"-q, --quiet                 : Minimum info (default: no)\n"
+				"-I, --interval <value>      : Application udp reception time in seconds. Exit after that. (default:run forever)\n"
+#ifdef HAVE_ZMQ
+				"-o, --output <file|zmq-url> : Output file path or zeromq url (default: stdout)\n"
+				"-L, --no-align              : Disable eti-packets alignment for ZeroMQ packing\n"
+#else
+				"-o, --output <file>         : Output file path (default: stdout)\n"
+#endif
+				"-a, --activity              : Dislay activity cursor (default: no)\n"
+				"-h, --help                  : Show this help\n"
 				"\n", name, VERSION_ID, name);
+}
+
+static void build_info(char *name) {
+	fprintf(stderr, "ZeroMQ:%s, FEC:%s\n",
+#ifdef HAVE_ZMQ
+		"enabled",
+#else
+		"disabled",
+#endif
+#ifdef HAVE_FEC
+		"enabled"
+#else
+		"disabled"
+#endif
+	);
 }
 
 static void signal_handler(int signum) {
@@ -80,6 +102,7 @@ void write_file(void *privData, void *etiData, int etiLen)
 
 
 
+#ifdef HAVE_ZMQ
 
 #define NUM_FRAMES_PER_ZMQ_MESSAGE 4
 
@@ -98,13 +121,17 @@ typedef struct {
 int is_initial = 1;
 zmq_dab_message_t zmq_msg;
 int zmq_msg_ix;
+int zmq_align = 1;
 
 void write_zmq(void *privData, void *etiData, int etiLen)
 {
-	int i;
-	if(verbosity > 1)
-		msg_Log("write:%u bytes to zmq part: %d", etiLen, zmq_msg_ix);
-	int offset = 0;
+    int i;
+    int offset = 0;
+    uint8_t *etiPkt = (uint8_t *) etiData;
+
+    if(verbosity > 1)
+        msg_Log("write:%u bytes to zmq part: %d", etiLen, zmq_msg_ix);
+
     // Increment the offset by the accumulated frame offsets
     for (i = 0; i < zmq_msg_ix; i++) {
         offset += zmq_msg.buflen[i];
@@ -115,8 +142,18 @@ void write_zmq(void *privData, void *etiData, int etiLen)
     	return;
     }
 
+    if(etiLen < 16 || (zmq_align && zmq_msg_ix != ((etiPkt[6] >> 5) & 0x03))) {
+        zmq_msg_ix=0;
+        zmq_msg.buflen[0] = -1;
+        zmq_msg.buflen[1] = -1;
+        zmq_msg.buflen[2] = -1;
+        zmq_msg.buflen[3] = -1;
+        msg_Log("ZMQ: skip non-aligned frames: %02x != %02x", zmq_msg_ix, ((etiPkt[6] >> 5) & 0x03));
+        return;
+    }
+
     // Append the new frame to our message
-    memcpy(zmq_msg.buf + offset, etiData, etiLen);
+    memcpy(zmq_msg.buf + offset, etiPkt, etiLen);
     zmq_msg.buflen[zmq_msg_ix] = etiLen;
     zmq_msg_ix++;
 
@@ -142,7 +179,7 @@ void write_zmq(void *privData, void *etiData, int etiLen)
         }
     }
 }
-
+#endif
 
 
 int main(int argc, char **argv) {
@@ -153,19 +190,22 @@ int main(int argc, char **argv) {
 	int port = DEFAULT_PORT;
 	int activity=0;
 	edi_handler_t *edi_p=NULL;
+#ifdef HAVE_ZMQ
 	void *zmq_context = NULL;
 	void *zmq_publisher = NULL;
+#endif
 
 	/******************************************************
 	 * Getopt
 	 ******************************************************/
-	const char short_options[] = "vaqhI:o:";
+	const char short_options[] = "vLaqhI:o:";
 	const struct option long_options[] = {
 			{ "interval", optional_argument, NULL, 'I' },
 			{ "verbose", optional_argument, NULL, 'v' },
 			{ "quiet", optional_argument, NULL,	'q' },
 			{ "output", optional_argument, NULL, 'o' },
 			{ "activity", optional_argument, NULL, 'a' },
+			{ "no-align", no_argument, NULL, 'L' },
 			{ "help", no_argument, NULL, 'h' },
 			{ 0, 0, 0, 0 }
 		};
@@ -173,6 +213,7 @@ int main(int argc, char **argv) {
 
 	if (argc == 1) {
 		usage(argv[0]);
+		build_info(argv[0]);
 		exit(-1);
 	}
 
@@ -192,7 +233,11 @@ int main(int argc, char **argv) {
 		case 'a':
 			activity++;
 			break;
-
+#ifdef HAVE_ZMQ
+		case 'L':
+			zmq_align=0;
+			break;
+#endif
 		case 'I':
 			timeout = atoi(optarg);
 			break;
@@ -203,10 +248,14 @@ int main(int argc, char **argv) {
 
 		case 'h':
 			usage(argv[0]);
+			build_info(argv[0]);
 			exit(0);
 			break;
 		}
 	}
+
+	if(verbosity > 0)
+		build_info(argv[0]);
 
 	if (argc <= optind) {
 		if (verbosity > 0)
@@ -214,8 +263,10 @@ int main(int argc, char **argv) {
 		exit(-1);
 	}
 
+
 	if(outpath) {
 		if(strncmp("zmq+", outpath, 4) == 0 && strlen(outpath) > 10) {
+#ifdef HAVE_ZMQ
 			zmq_context = zmq_ctx_new ();
 			zmq_publisher = zmq_socket (zmq_context, ZMQ_PUB);
 			zmq_bind (zmq_publisher, outpath+4);
@@ -226,8 +277,13 @@ int main(int argc, char **argv) {
 			zmq_msg.buflen[3] = -1;
 			zmq_msg.version = 1;
 			zmq_msg_ix=0;
+#else
+			msg_Log("ZEROMQ is disabled! Can't stream to specified destination: %s", outpath);
+			exit(-1);
+#endif
 
-		} else {
+		} else
+		{
 			out_fh = fopen(outpath, "wb");
 			edi_p = initEDIHandle(ETI_FMT_RAW, write_file, out_fh);
 		}
@@ -322,10 +378,12 @@ int main(int argc, char **argv) {
 	sock = 0;
 	free(buff);
 
+#ifdef HAVE_ZMQ
 	if(zmq_publisher)
 	    zmq_close (zmq_publisher);
 	if(zmq_context)
 	    zmq_term (zmq_context);
+#endif
 
 	return 1;
 }

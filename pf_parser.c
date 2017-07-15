@@ -14,7 +14,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#ifdef HAVE_FEC
 #include <fec.h>
+#endif
 
 #include "edi_parser.h"
 #include "crc.h"
@@ -167,12 +169,15 @@ static bool decodePFTFrags(struct afBuilders *afb, uint8_t _pseqIdx, uint32_t *e
 				fprintf(stderr, "\n");
 			}
 #endif
+
+#ifdef HAVE_FEC
 			//int errors_corrected = fec_decode(chunk, erasures[i], cnt);
 			int num_err = decode_rs_char(afb->m_rs_handler, chunk, erasures[i], erasures_cnt);
 			if (num_err == -1) {
 				msg_Log("Too many errors in FEC %d", erasures_cnt);
 				return false;
 			}
+#endif
 
 			//if(num_err) {
 			//	fprintf(stderr, "corrected %d errors of %d\n", num_err, erasures_cnt);
@@ -183,6 +188,7 @@ static bool decodePFTFrags(struct afBuilders *afb, uint8_t _pseqIdx, uint32_t *e
 
 		//TODO: increase afb->bytesCollected
 		_afSingle->bytesCollected = (afb->_cmax)*afb->RSk - afb->RSz;
+
 	} else {
 		//afb->afPacket = _afSingle->pfPackets;
 		memcpy(afb->afPacket, _afSingle->pfPackets, afb->Fcount*afb->Plen);
@@ -302,6 +308,9 @@ int pushPFTFrag(struct pfPkt *pf, struct afBuilders *afb)
 			/* Receiving _rxmin fragments does not guarantee that decoding
 			 * will succeed! */
 			afb->_rxmin = afb->Fcount - (afb->_cmax*48)/afb->Plen;
+#ifndef HAVE_FEC
+			msg_Log("FEC is disabled in this application. Lost packets will not be recovered!");
+#endif
 		} else {
 			afb->_rxmin = afb->Fcount;
 			afb->rs_block=NULL;
