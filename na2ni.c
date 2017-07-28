@@ -495,7 +495,7 @@ int main(int i_argc, char **ppsz_argv)
 	do {
     	int readed_bytes = shift_frame_mem(read_ptr, &pre_offset_bits, 8-offset_bits_num, is_inverted, &eti_frames_ptr[E1_FRAME_LEN*multiframe_filling]);
     	if(readed_bytes != E1_FRAME_LEN) {
-    		ERROR("Readed too small amount of bytes: %d", readed_bytes);
+    		ERROR("Have read too small amount of bytes: %d", readed_bytes);
     		exit(1);
     	}
     	read_ptr+=E1_FRAME_LEN;
@@ -529,7 +529,7 @@ int main(int i_argc, char **ppsz_argv)
 			int readed_bytes = shift_frame_mem(read_ptr, &pre_offset_bits, 8-offset_bits_num, is_inverted,
 					&eti_frames_ptr[E1_FRAME_LEN*multiframe_filling]);
 			if(readed_bytes != E1_FRAME_LEN) {
-				ERROR("Readed too small amount of bytes: %d", readed_bytes);
+				ERROR("Have read too small amount of bytes: %d", readed_bytes);
 				exit(1);
 			}
 			read_ptr+=E1_FRAME_LEN;
@@ -589,7 +589,7 @@ read_again:
 		int readed_bytes = shift_frame_mem(p_e1_search_block, &pre_offset_bits, 8-offset_bits_num, is_inverted,
 				&eti_frames_ptr[E1_FRAME_LEN*multiframe_filling]);
 		if(readed_bytes != E1_FRAME_LEN) {
-			ERROR("Readed too small amount of bytes: %d", readed_bytes);
+			ERROR("Have read too small amount of bytes: %d", readed_bytes);
 			break;
 		}
 
@@ -618,7 +618,7 @@ read_again:
 		goto read_again;
 	}
 
-	INFO("Readed %ld ETI-frames", multiframes_readed);
+	INFO("Processed %ld ETI-frames", multiframes_readed);
 
     fclose(inputfile);
     fclose(outputfile);
