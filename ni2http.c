@@ -1012,7 +1012,7 @@ int main(int i_argc, char **ppsz_argv)
 		do {
 			size_t i_ret = fread(p_ni_search_block + bytes_readed, ETI_NI_RAW_SIZE - bytes_readed, 1, inputfile);
 			if(i_ret != 1){
-				ERROR("Can't read from file in %ld loop, total readed: %d", count, total_readed);
+				ERROR("Can't read from file in %ld loop, total read: %d", count, total_readed);
 				exit(1);
 			}
 			total_readed += ETI_NI_RAW_SIZE - bytes_readed;
