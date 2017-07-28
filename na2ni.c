@@ -1,5 +1,5 @@
 
-/* Uncomment this if u want to enable Forwarded Error Correction for ETI-NA stream 
+/* Uncomment this if u want to enable Forward Error Correction (FEC) for ETI-NA stream 
  * It will use more CPU cycles.
  **/
 //#define HAVE_FEC
@@ -451,9 +451,9 @@ int main(int i_argc, char **ppsz_argv)
     }
 
 #ifdef HAVE_FEC
-	WARN("Forwarded error correction %s", no_fec ? "disabled" : "enabled");
+	WARN("Forward error correction (FEC) %s", no_fec ? "disabled" : "enabled");
 #else
-	WARN("Forwarded error correction disabled (NOT COMPILED)");
+	WARN("Forward error correction (FEC) disabled (NOT COMPILED)");
 #endif
 	/* space for 2 ETI frames for bitwise seeking */
     uint8_t p_e1_search_block[E1_FRAME_LEN*FRAMES_IN_BLOCK*2];
