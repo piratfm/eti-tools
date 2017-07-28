@@ -251,7 +251,7 @@ int main(int i_argc, char **ppsz_argv)
     }
 
     if(packets){
-    	INFO("Successfuly readed %ld ts-packets", packets);
+    	INFO("Successfully read %ld ts-packets", packets);
     }
 
 
