@@ -5,7 +5,7 @@ This is a software collection for converting [Ensemble Transport Interface](http
 
 The main purpose of these apps is to convert/manupulate ETI-NA/ETI-NI streams (by using pipelines). With these software tools you can create your own IceCast2 internet-radio server which will use your local DAB/DAB+ transmitter as source for the stations streams. You also can re-multiplex some (needed) stations from one ETI-stream to another by using ZeroMQ feature of the ni2http application and [ODR-DabMUX](https://github.com/Opendigitalradio/ODR-DabMux). 
 
-This software also able to receive and convert specially formatted satellite DAB(+) streams (feeds) to regular ETI-NI which then can be used to play in [dablin](https://github.com/Opendigitalradio/dablin) or even feed modulator software/hardware (check local laws!) or to create internet-station from that source.
+This software also allows to receive and convert special formatted satellite DAB(+) streams (so-called feeds) into regular ETI-NI which then can be used to play in [dablin](https://github.com/Opendigitalradio/dablin) or even feed modulator software/hardware (check local laws!) or to create internet-station from that source.
 
 
 Table of Content
