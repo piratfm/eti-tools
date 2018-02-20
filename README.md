@@ -139,3 +139,28 @@ In `[channel]` sections at least service ID of the channel must be presented.
 If you wish to write stream to a file, then use `file` to specify its location. If stream to Icecast2 server is needed, then specify mount-point on the icecast server.
 
 If you wish to re-stream to ODR-DabMUX then set destination of the ZeroMQ URI to muxing server. To get list of service IDs, use `ni2http --list -i <inputfile>`
+
+Satellite DAB(+) feeds
+----------------
+
+This is a list of satellite feeds that you can use with the tool `ts2na`:
+
+Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
+-- | -- | -- | -- | -- | -- | -- | -- | --
+D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | -3 | Pending
+SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | -3 | Pending
+NRK | 1.0ºW | 10704V | 4200 3/4 | 8PSK/ACM | MIS=171 | ?? | -- | (Probably EDI stream) Pending
+BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
+D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
+SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
+  |   |   |   |   |   |   |   |  
+
+If you want to use one of these feeds, here's an example of how to do it:
+
+- **Source**: Use one SAT tuner to stream the feed to some multicast address.
+- - Example with SAT>IP for getting an MPEG-TS with the three DAB bitstreams present in the MUX:
+- - `satip://server:554/?src=1&freq=12303&pol=h&msys=dvbs&mtype=qpsk&sr=25546&fec=78 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
+- - Destination: udp://@239.1.1.1:1234
+- **Unpacking**: Get the BBC DAB bitstream with tools "ts2na"+"na2ni" and generate one output ETI-NI file:
+- - `socat UDP4-RECV:1234,bind=239.1.1.1,ip-add-membership=239.1.1.1:eth0,reuseaddr - | ts2na -p 1061 -s 12 | na2ni -o bbc.eti-ni`
+- **Play**: You need to use some DAB player with ETI-NI support (for example DABlin).
