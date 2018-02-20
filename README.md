@@ -149,6 +149,7 @@ Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
 -- | -- | -- | -- | -- | -- | -- | -- | --
 D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | -3 | Pending
 SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | -3 | Pending
+NRK | 1.0ºW | 10704V | 4200 ?/? | DVB-S2/GSE | MIS=171 | ?? | ?? | (Probably EDI stream) Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
