@@ -147,12 +147,15 @@ This is a list of satellite feeds that you can use with the tool `ts2na`:
 
 Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
 -- | -- | -- | -- | -- | -- | -- | -- | --
-D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | -3 | Pending
-SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | -3 | Pending
-NRK | 1.0ºW | 10704V | 4200 3/4 | 8PSK/ACM | MIS=171 | ?? | -- | (Probably EDI stream) Pending
+DR 5C | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
+WDR 11D | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
+D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | ?? | Pending
+SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | ?? | Pending
+BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
+NRK | 1.0ºW | 10704V | 4200 3/4 | 8PSK/ACM | MIS=171 | ?? | -- | Pending (EDI?) 
   |   |   |   |   |   |   |   |  
 
 If you want to use one of these feeds, here's an example of how to do it:
