@@ -149,8 +149,6 @@ Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
 -- | -- | -- | -- | -- | -- | -- | -- | --
 DR 5C | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
 WDR 11D | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
-D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | ?? | Pending
-SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | ?? | Pending
 BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
@@ -158,12 +156,18 @@ SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
 NRK | 1.0ºW | 10704V | 4200 3/4 | 8PSK/ACM | MIS=171 | ?? | -- | Pending (EDI?) 
   |   |   |   |   |   |   |   |  
 
-If you want to use one of these feeds, here's an example of how to do it:
+If you want to use one of these feeds, here's a guide about how to do it (see below for an example):
 
-- **Source**: Use one SAT tuner to stream the feed to some multicast address.
-- - Example with SAT>IP for getting an MPEG-TS with the three DAB bitstreams present in the MUX:
-- - `satip://server:554/?src=1&freq=12303&pol=h&msys=dvbs&mtype=qpsk&sr=25546&fec=78 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
-- - Destination: udp://@239.1.1.1:1234
-- **Unpacking**: Get the BBC DAB bitstream with tools "ts2na"+"na2ni" and generate one output ETI-NI file:
-- - `socat UDP4-RECV:1234,bind=239.1.1.1,ip-add-membership=239.1.1.1:eth0,reuseaddr - | ts2na -p 1061 -s 12 | na2ni -o bbc.eti-ni`
-- **Play**: You need to use some DAB player with ETI-NI support (for example DABlin).
+- **Source**: You need to _capture_ the feed with a SAT tuner. Our recomendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer on your network (not only the one with the SAT tuner).
+  - If your SAT tuner is a SAT>IP server, then you can use this URI for getting an MPEG-TS with the three DAB bitstreams present in the MUX of 4.5ºE:
+    - `satip://server:554/?src=1&freq=12303&pol=h&msys=dvbs&mtype=qpsk&sr=25546&fec=78 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
+- **Unpacking**: You need to _process_ the multicast stream to obtain the ETI DAB ensemble. You can do this on any computer on your network. The input must be the MPEG-TS and the output will be the ETI-NI bitstream. You can save it in a file, FIFO or PIPE. Required tools: `SOCAT`, `ts2na` & `na2ni`.
+- **Play**: Finally you need to _reproduce_ the DAB ensemble. You can use any DAB player with ETI-NI input support (for example DABlin).
+
+Here an "all-in-one" example:
+
+- **Producer**: Using the DVBlast tool in a computer with a DVB-S tuner, for streaming all three DAB ensembles from 4.5ºE in 12303-H, to the multicast address udp://@239.1.1.1:1234 from the source address 192.168.1.33 (IP of this computer):
+  - `dvblast -f 12303000 -s 25546000 -v 18 -S 1 -d "239.1.1.10:5018@192.168.1.33/udp 1 0 0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
+- **Consumer**: Use DABlin to consume the MPEG-TS from udp://@239.1.1.1:1234 and tune the ensemble "BBC DAB" at pid 1061:
+  - `socat UDP4-RECV:5018,bind=239.1.1.10,ip-add-membership=239.1.1.10:eth0,reuseaddr - | ts2na -p 1061 -s 12 | na2ni | dablin -p`
+
