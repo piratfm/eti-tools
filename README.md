@@ -149,8 +149,6 @@ Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
 -- | -- | -- | -- | -- | -- | -- | -- | --
 DR 5C | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
 WDR 11D | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
-D1 DAB | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1062 | ?? | ?? | Pending
-SDL nATL | 9.0ºE | 11727V | 27500 3/4 | QPSK/DVB-S | 1063 | ?? | ?? | Pending
 BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
