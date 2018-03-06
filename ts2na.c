@@ -95,7 +95,13 @@ int main(int i_argc, char **ppsz_argv)
             		WARN("TS Discontinuity");
             	}
             	i_last_cc = ts_get_cc(p_ts);
-            	uint8_t *payload = ts_payload(p_ts);
+            	uint8_t *payload;
+                if(ts_get_transporterror(p_ts)) {
+                        WARN("TS Packed error!");
+                        payload = p_ts + TS_HEADER_SIZE;  // When error is detected, pass the entire payload.
+                } else {
+                        payload = ts_payload(p_ts);
+                }
             	if(offset) {
             		payload+=offset;
             	}
