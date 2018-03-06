@@ -296,7 +296,7 @@ int eti_superblocks_deinterleave(uint8_t *eti_superblocks_ptr, uint8_t *eti_supe
 
 	if(superblock_num!=0 || block_num != 1) {
 		ERROR("Deinterleave: Bad block[1]:[%d.%d]: %02x b.6=%d", superblock_num, block_num, mgmt_byte_block1, type_bit);
-		exit(1);
+		return -1;
 	}
 
 	do {
@@ -414,6 +414,7 @@ int main(int i_argc, char **ppsz_argv)
     int c, no_fec=0;
     FILE *inputfile=stdin;
     FILE *outputfile=stdout;
+    int resync = 0;
     
     static const struct option long_options[] = {
         { "input",         required_argument,       NULL, 'i' },
@@ -457,6 +458,8 @@ int main(int i_argc, char **ppsz_argv)
 #endif
 	/* space for 2 ETI frames for bitwise seeking */
     uint8_t p_e1_search_block[E1_FRAME_LEN*FRAMES_IN_BLOCK*2];
+sync_again:
+    resync++;
     size_t i_ret = fread(p_e1_search_block, E1_FRAME_LEN*FRAMES_IN_BLOCK, 2, inputfile);
     if(i_ret != 2){
     	ERROR("Can't read from file");
@@ -601,7 +604,11 @@ read_again:
 		if(!(multiframes_readed % 100))
 				fprintf(stderr, ".");
 
-		eti_superblocks_deinterleave(eti_frames_ptr, eti_mutiframe_deint, no_fec, rs_handlers);
+		int result = eti_superblocks_deinterleave(eti_frames_ptr, eti_mutiframe_deint, no_fec, rs_handlers);
+		if (result < 0) {
+			WARN("SYNC lost! Resynchronizing (%i)", resync);
+			goto sync_again;
+		}
 		//WARN("Got %d deinterleaved bytes", deinterleaved);
 		eti_ni_copy(eti_mutiframe_deint, eti_ni_frame, even);
 		even=!even;
