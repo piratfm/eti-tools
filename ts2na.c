@@ -58,7 +58,6 @@ int main(int i_argc, char **ppsz_argv)
             }
             if (offset == 200)
             {
-                offset = 0;
                 automode = 1;
             }
             break;
@@ -95,6 +94,18 @@ int main(int i_argc, char **ppsz_argv)
         if (i_ret != 1) {
         	WARN("Can't read input ts");
         	break;
+        }
+        if (automode) {
+                INFO("Searching for offset value...");
+                if (p_ts[0] != 0x47)
+                     offset = 0;
+
+                if (offset < 188) {
+                     INFO(" found value %d.\n", offset);
+                } else {
+                     INFO(" not found! Exiting\n");
+                     break;
+                }
         }
         if (ts_validate(p_ts)) {
             if(offset >= 0 &&  ts_get_pid(p_ts)==pid) {
