@@ -18,17 +18,19 @@
 static void usage(const char *psz)
 {
     fprintf(stderr, "usage: %s [-p pid] [-s offset] [-i <inputfile>] [-o <outputfile>]\n", psz);
+    fprintf(stderr, "       -s: Valid values are in range from '-3' to '184', plus '200' (aka 'auto')\n");
     exit(EXIT_FAILURE);
 }
-    
+
 int main(int i_argc, char **ppsz_argv)
-{   
+{
     int c;
     FILE *inputfile=stdin;
     FILE *outputfile=stdout;
     int offset=12, pid=0x0426;
     int i_last_cc = -1;
-    
+    int automode = 0;
+
     static const struct option long_options[] = {
         { "pid",           required_argument, NULL, 'p' },
         { "offset",            required_argument,       NULL, 's' },
@@ -36,7 +38,7 @@ int main(int i_argc, char **ppsz_argv)
         { "output",          required_argument,       NULL, 'o' },
         { 0, 0, 0, 0 }
     };
-    
+
     while ((c = getopt_long(i_argc, ppsz_argv, "p:s:i:o:h", long_options, NULL)) != -1)
     {
         switch (c) {
@@ -50,9 +52,14 @@ int main(int i_argc, char **ppsz_argv)
 
         case 's':
             offset=strtol(optarg, NULL, 0);
-            if(offset >= 184 || offset <= -4) {
+            if(offset <= -4 || (offset >= 184 && offset != 200)) {
                 ERROR("bad offset value: %d!", offset);
                 exit(1);
+            }
+            if (offset == 200)
+            {
+                offset = 0;
+                automode = 1;
             }
             break;
 
