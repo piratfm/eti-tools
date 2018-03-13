@@ -153,7 +153,8 @@ BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
-NRK | 1.0ºW | 10704V | 4200 3/4 | 8PSK/ACM | MIS=171 | ?? | -- | Pending (EDI?) 
+NRK | 1.0ºW | 10704V | 4200 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
   |   |   |   |   |   |   |   |  
 
 If you want to use one of these feeds, here's a guide about how to do it (see below for an example):
