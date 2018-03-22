@@ -153,11 +153,11 @@ BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
 BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
-ERT | 3.1°E | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (NIv2)
+ERT | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (NIv2)
 NRK | 1.0ºW | 10704V | 4200 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-DAB Italia | 12.5°W | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | ?? | n/a | OK (NIv2)
-EuroDAB | 12.5°W | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | ?? | n/a | OK (NIv2)
+DAB Italia | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | ?? | n/a | OK (NIv2)
+EuroDAB | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | ?? | n/a | OK (NIv2)
   |   |   |   |   |   |   |   |  
 
 If you want to use one of these feeds, here's a guide about how to do it (see below for an example):
