@@ -3,7 +3,7 @@ eti-tools
 
 This is a software collection for converting [Ensemble Transport Interface](http://wiki.opendigitalradio.org/Ensemble_Transport_Interface) used in terrestrial Digital Audio Broadcasting (DAB/DAB+/T-DMB).
 
-The main purpose of these apps is to convert/manupulate ETI-NA/ETI-NI streams (by using pipelines). With these software tools you can create your own IceCast2 internet-radio server which will use your local DAB/DAB+ transmitter as source for the stations streams. You also can re-multiplex some (needed) stations from one ETI-stream to another by using ZeroMQ feature of the ni2http application and [ODR-DabMUX](https://github.com/Opendigitalradio/ODR-ux). 
+The main purpose of these apps is to convert/manupulate ETI-NA/ETI-NI streams (by using pipelines). With these software tools you can create your own IceCast2 internet-radio server which will use your local DAB/DAB+ transmitter as source for the stations streams. You also can re-multiplex some (needed) stations from one ETI-stream to another by using ZeroMQ feature of the ni2http application and [ODR-DabMUX](https://github.com/Opendigitalradio/ODR-DabMux). 
 
 This software also allows to receive and convert special formatted [Satellite DAB(+) streams](#satellite-dab-feeds) (so-called feeds) into regular ETI-NI which then can be used to play in [dablin](https://github.com/Opendigitalradio/dablin) or even feed modulator software/hardware (check local laws!) or to create internet-station from that source.
 
@@ -154,6 +154,8 @@ Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | n/a 
 BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
+D1 DAB | UK | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
+SDL NATL | UK  | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
 ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (NIv2)
 NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
