@@ -87,7 +87,7 @@ ETI-NI streams from terrestrial DAB ensembles can also be created by [eti-stuff]
 
     usage: ./ni2http [--list] [--delay] [-i <inputfile>] [-c <config_file>] [-s <SID>]
 
-Use `--list` option to find SIDs and station names of the streams inside ETI. If you wish to write stream to stdout, then use `ni2http --sid <SID>`.
+Use `--list` option to find SIDs and station names of the streams inside ETI. If you wish to write stream to stdout, then use `ni2http --sid <SID>`. In this case the config_file isn't needed.
 The `--delay` option has to be used for offline-relaying (from the file, not from the stream). So in that case application will wait 24ms after each eti frame in order to make pseudo-realtime streaming.
 
 The application is also able to parse FIC for auto-detecting of station name and X-PAD of DAB and DAB+ for setting current DLS (song titles).
