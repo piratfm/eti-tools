@@ -5,7 +5,7 @@ This is a software collection for converting [Ensemble Transport Interface](http
 
 The main purpose of these apps is to convert/manupulate ETI-NA/ETI-NI streams (by using pipelines). With these software tools you can create your own IceCast2 internet-radio server which will use your local DAB/DAB+ transmitter as source for the stations streams. You also can re-multiplex some (needed) stations from one ETI-stream to another by using ZeroMQ feature of the ni2http application and [ODR-DabMUX](https://github.com/Opendigitalradio/ODR-DabMux). 
 
-This software also allows to receive and convert special formatted satellite DAB(+) streams (so-called feeds) into regular ETI-NI which then can be used to play in [dablin](https://github.com/Opendigitalradio/dablin) or even feed modulator software/hardware (check local laws!) or to create internet-station from that source.
+This software also allows to receive and convert special formatted [Satellite DAB(+) streams](#satellite-dab-feeds) (so-called feeds) into regular ETI-NI which then can be used to play in [dablin](https://github.com/Opendigitalradio/dablin) or even feed modulator software/hardware (check local laws!) or to create internet-station from that source.
 
 
 Table of Content
@@ -17,6 +17,7 @@ Table of Content
   * [na2ni](#eti-na2ni)
   * [edi2eti](#eti-edi2eti)
   * [ni2http](#eti-ni2http)
+* [Satellite DAB(+) feeds](#satellite-dab-feeds)
 
 
 Prerequisitions
@@ -81,9 +82,9 @@ Sample of receiving multicast stream and save it to file:
 ETI ni2http
 ----------------
 
-**ni2http** is a ETI-NI to HTTP or ZeroMQ converter. This tool converts eti-stream to mp2 resp. aac and relays it to icecast2 or ODR-DabMUX server.
+**ni2http** is a ETI-NI to HTTP or ZeroMQ converter. This tool converts eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
 
-ETI-NI streams from terrestrial DAB ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
+ETI-NI streams from terrestrial DAB(+) ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
 
     usage: ./ni2http [--list] [--delay] [-i <inputfile>] [-c <config_file>]
 
@@ -138,27 +139,33 @@ In `[channel]` sections at least service ID of the channel must be presented.
 
 If you wish to write stream to a file, then use `file` to specify its location. If stream to Icecast2 server is needed, then specify mount-point on the icecast server.
 
-If you wish to re-stream to ODR-DabMUX then set destination of the ZeroMQ URI to muxing server. To get list of service IDs, use `ni2http --list -i <inputfile>`
+If you wish to re-stream to ODR-DabMUX then set destination of the ZeroMQ URI to muxing server. To get a list of audio service IDs, use `ni2http --list -i <inputfile>`
 
 Satellite DAB(+) feeds
 ----------------
 
-This is a list of satellite feeds that you can use with the tool `ts2na`:
+This is an exclusive list of satellite feeds that you can use with the tool `ts2na` or with https://github.com/newspaperman/tsniv2ni which works for ETI-NA(V.11) (see last column).
 
-Stream Name | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
--- | -- | -- | -- | -- | -- | -- | -- | --
-DR 5C | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
-WDR 11D | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
-BR 11D | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | ?? | Pending
-BBC DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
-D1 DAB | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
-SDL NATL | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
-ERT | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (NIv2)
-NRK | 1.0ºW | 10704V | 4200 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-DAB Italia | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | ?? | n/a | OK (NIv2)
-EuroDAB | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | ?? | n/a | OK (NIv2)
-  |   |   |   |   |   |   |   |  
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
+-- | -- | -- | -- | -- | -- | -- | -- | -- | --
+Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
+WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
+Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | n/a | OK (V.11)
+BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
+D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
+SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
+D1 DAB | UK | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
+SDL NATL | UK  | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
+ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (V.11)
+NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
+DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | ?? | n/a | OK (V.11)
+EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | ?? | n/a | OK (V.11)
+  |   |   |   |   |   |   |   |  |
 
 If you want to use one of these feeds, here's a guide about how to do it (see below for an example):
 
