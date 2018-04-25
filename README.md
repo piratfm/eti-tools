@@ -18,6 +18,9 @@ Table of Content
   * [edi2eti](#eti-edi2eti)
   * [ni2http](#eti-ni2http)
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
+  * [Guide](#guide)
+    * [dvbstream](#dvbstream)
+    * [Sat>IP](#alternative)
 
 
 Prerequisitions
@@ -150,24 +153,42 @@ Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Che
 -- | -- | -- | -- | -- | -- | -- | -- | -- | --
 Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
-Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S | 1025 | ?? | n/a | OK (V.11)
+Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025 | n/a | n/a | OK (V.11)
 BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
 D1 DAB | UK | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
 SDL NATL | UK  | 28.2ºE | 11425H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
-ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | ?? | n/a | OK (V.11)
+ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | n/a | n/a | OK (V.11)
 NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
 NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | ?? | n/a | OK (V.11)
-EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | ?? | n/a | OK (V.11)
+DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | n/a | n/a | OK (V.11)
+EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | n/a | n/a | OK (V.11)
   |   |   |   |   |   |   |   |  |
 
+## Guide
+
 If you want to use one of these feeds, here's a guide about how to do it (see below for an example):
+
+### dvbstream 
+
+``` 
+dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2http --list
+```
+for UK's SDL National Mux or
+
+``` 
+dvbstream -f 12734000 -s 16751 1010 -p V -o | tsniv2ni/tsniv2ni 1010
+``` 
+for the Greek Mux.
+
+Please consider to add `-D x` (which stands for DiSEqC) if you have more than one LNB.
+
+### Alternative
 
 - **Source**: You need to _capture_ the feed with a SAT tuner. Our recomendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer on your network (not only the one with the SAT tuner).
   - If your SAT tuner is a SAT>IP server, then you can use this URI for getting an MPEG-TS with the three DAB bitstreams present in the MUX of 4.5ºE:
