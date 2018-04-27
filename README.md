@@ -28,8 +28,28 @@ Prerequisitions
 
 Additional libraries are needed:
 * [libfec](https://github.com/Opendigitalradio/ka9q-fec) - for Reed-Solomon FEC, may be enabled/disabled.
+
+      git clone https://github.com/Opendigitalradio/ka9q-fec.git
+      cd ka9q-fec/
+      mkdir build
+      cd build/
+      cmake ..
+      make
+      sudo make install
+      
+   To clean the build directory type
+       
+      rm -rf *
+
 * [libshout](http://www.icecast.org/download.php) - for NI-to-HTTP converter (included in this package library is modified to support aac and raw streaming).
-* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in Makefile if this option is needed.
+  
+  For Debian (incl. Ubuntu and derivates)
+
+      sudo apt-get install icecast2
+
+  and follow the instructions
+
+* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in `Makefile` if this option is needed.
 
 
 ts2na
