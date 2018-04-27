@@ -12,6 +12,7 @@ Table of Content
 ----------------
 
 * [Prerequisitions](#prerequisitions)
+* [Installation](#installation)
 * Tools
   * [ts2na](#ts2na)
   * [na2ni](#eti-na2ni)
@@ -49,7 +50,19 @@ Additional libraries are needed:
 
   and follow the instructions
 
-* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in `Makefile` if this option is needed.
+* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Comment it in `Makefile` if this option is not needed (see below).
+
+Installation
+----------------
+    
+    git clone https://github.com/piratfm/eti-tools.git
+    cd eti-tools/
+
+If you need to disable ZeroMQ (see above): Edit `Makefile` and comment (= add `#` in front of) lines 16 and 17, then
+
+    make
+
+As there is no `make install` you find the executables in the current folder. You could add aliases in `~/.bash_aliases` or add the eti-tools-directory to your `$PATH`.
 
 
 ts2na
@@ -163,6 +176,7 @@ In `[channel]` sections at least service ID of the channel must be presented.
 If you wish to write stream to a file, then use `file` to specify its location. If stream to Icecast2 server is needed, then specify mount-point on the icecast server.
 
 If you wish to re-stream to ODR-DabMUX then set destination of the ZeroMQ URI to muxing server. To get a list of audio service IDs, use `ni2http --list -i <inputfile>`
+
 
 Satellite DAB(+) feeds
 ----------------
