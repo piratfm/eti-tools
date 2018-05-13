@@ -43,7 +43,7 @@ char *ip = DEFAULT_HOST;
 static void usage(char *name) {
 	fprintf(
 			stderr,
-			"%s udp unicast/multicast EDI-to-ETI coverter.\n"
+			"%s udp unicast/multicast EDI-to-ETI converter.\n"
 				"This is UDP unicast/multicast EDI-stream receiver that converts received stream to ETI-format %s.\n"
 				"Usage: %s [options] [address]:[port]\n"
 				"-v, --verbose               : Show more info (default: no)\n"
@@ -55,7 +55,7 @@ static void usage(char *name) {
 #else
 				"-o, --output <file>         : Output file path (default: stdout)\n"
 #endif
-				"-a, --activity              : Dislay activity cursor (default: no)\n"
+				"-a, --activity              : Display activity cursor (default: no)\n"
 				"-h, --help                  : Show this help\n"
 				"\n", name, VERSION_ID, name);
 }
