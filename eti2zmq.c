@@ -51,7 +51,7 @@ static void usage(const char *psz)
 	    "--no-align or -L                   Disable frame alignment for ZeroMQ packing\n"
 	    "--no-cut-tail or -C                Disable removing unneeded fill bytes at ETI frames tails\n"
 	    "--activity or -a                   Display app's activity in console\n"
-	    "--verbose or -v                    Increase app's verbosity (can be provided multiple times)\n\n"
+	    "--verbose or -v                    Increase app's verbosity (can be provided multiple times)\n\n",
 	    psz);
     exit(EXIT_FAILURE);
 }
