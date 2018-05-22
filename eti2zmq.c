@@ -42,7 +42,17 @@ extern struct ens_info einf;
 
 static void usage(const char *psz)
 {
-    fprintf(stderr, "usage: %s [--delay] [-i <inputfile>] -o zmq+tcp://:18082\n", psz);
+    fprintf(stderr, "usage: %s [--delay] [-i <inputfile>] -o zmq+tcp://0.0.0.0:18082\n\n"
+	    "Additional info related to arguments:\n",
+	    "--input or -i <filename>	 	Provide input file for app\n"
+	    "--output or -o <zeromq address>    Provide zeromq output address like zmq+tcp://[local_ip]:[port_to_listen]\n"
+	    "--delay or -d                      Force pseudo-realtume streaming (add 24ms delay for each eti frame)\n"
+	    "--loop or -l                       Run input file in-a-loop\n"
+	    "--no-align or -L                   Disable frame alignment for ZeroMQ packing\n"
+	    "--no-cut-tail or -C                Disable removing unneeded fill bytes at ETI frames tails\n"
+	    "--activity or -a                   Display app's activity in console\n"
+	    "--verbose or -v                    Increase app's verbosity (can be provided multiple times)\n\n"
+	    psz);
     exit(EXIT_FAILURE);
 }
 
@@ -57,10 +67,9 @@ static void signal_handler(int signum)
 
 int verbosity=0;
 
-#ifdef HAVE_ZMQ
-
 #define NUM_FRAMES_PER_ZMQ_MESSAGE 4
 
+#ifdef HAVE_ZMQ
 typedef struct {
     uint32_t version;
     int16_t buflen[NUM_FRAMES_PER_ZMQ_MESSAGE];
@@ -78,7 +87,7 @@ zmq_dab_message_t zmq_msg;
 int zmq_msg_ix;
 int zmq_align = 1;
 
-void write_zmq(void *privData, void *etiData, int etiLen)
+int write_zmq(void *privData, void *etiData, int etiLen)
 {
     int i;
     int offset = 0;
@@ -94,7 +103,7 @@ void write_zmq(void *privData, void *etiData, int etiLen)
 
     if (offset + etiLen > NUM_FRAMES_PER_ZMQ_MESSAGE*6144) {
     	INFO("FAULT: invalid ETI frame size!");
-    	return;
+    	return 0;
     }
 
     if(etiLen < 16 || (zmq_align && zmq_msg_ix != ((etiPkt[6] >> 5) & 0x03))) {
@@ -104,7 +113,7 @@ void write_zmq(void *privData, void *etiData, int etiLen)
         zmq_msg.buflen[2] = -1;
         zmq_msg.buflen[3] = -1;
         INFO("ZMQ: skip non-aligned frames: %02x != %02x", zmq_msg_ix, ((etiPkt[6] >> 5) & 0x03));
-        return;
+        return 0;
     }
 
     // Append the new frame to our message
@@ -132,6 +141,9 @@ void write_zmq(void *privData, void *etiData, int etiLen)
         for (i = 0; i < NUM_FRAMES_PER_ZMQ_MESSAGE; i++) {
         	zmq_msg.buflen[i] = -1;
         }
+	return 1;
+    } else {
+    	return 0;
     }
 }
 #endif
@@ -183,7 +195,7 @@ void print_bytes(char *bytes, int len)
 
 int main(int i_argc, char **ppsz_argv)
 {   
-    int c, delay=0;
+    int c, delay=0, loop=0, cut_tail=1;
     FILE *inputfile=stdin;
     char *outpath = NULL;
     int activity=0;
@@ -195,14 +207,16 @@ int main(int i_argc, char **ppsz_argv)
     static const struct option long_options[] = {
         { "input",        required_argument,       NULL, 'i' },
         { "output",       required_argument,       NULL, 'o' },
-        { "delay",        no_argument,               NULL, 'd' },
-        { "no-align",        no_argument,               NULL, 'L' },
-        { "activity",     no_argument,               NULL, 'a' },
-        { "verbose",     no_argument,               NULL, 'v' },
+        { "delay",        no_argument,             NULL, 'd' },
+	{ "loop",         no_argument,             NULL, 'l' },
+        { "no-align",     no_argument,             NULL, 'L' },
+	{ "no-cut-tail",  no_argument,             NULL, 'C' },
+        { "activity",     no_argument,             NULL, 'a' },
+        { "verbose",      no_argument,             NULL, 'v' },
         { 0, 0, 0, 0 }
     };
 
-    while ((c = getopt_long(i_argc, ppsz_argv, "i:Ldhav", long_options, NULL)) != -1)
+    while ((c = getopt_long(i_argc, ppsz_argv, "i:o:lLdhav", long_options, NULL)) != -1)
     {
         switch (c) {
         case 'i':
@@ -217,11 +231,17 @@ int main(int i_argc, char **ppsz_argv)
     	zmq_align=0;
     	break;
 #endif
-		case 'o':
-			outpath = optarg;
-			break;
+	case 'o':
+		outpath = optarg;
+		break;
         case 'd':
         	delay=1;
+            break;
+        case 'l':
+        	loop=1;
+            break;
+        case 'C':
+        	cut_tail=0;
             break;
         case 'a':
         	activity=1;
@@ -235,28 +255,24 @@ int main(int i_argc, char **ppsz_argv)
         }
     }
 
-
-
-	if(outpath) {
-		if(strncmp("zmq+", outpath, 4) == 0 && strlen(outpath) > 10) {
+	if(!outpath)
+		usage(ppsz_argv[0]);
+		
+	if(strncmp("zmq+", outpath, 4) == 0 && strlen(outpath) > 10) {
 #ifdef HAVE_ZMQ
-			zmq_context = zmq_ctx_new ();
-			zmq_publisher = zmq_socket (zmq_context, ZMQ_PUB);
-			zmq_bind (zmq_publisher, outpath+4);
-			zmq_msg.buflen[0] = -1;
-			zmq_msg.buflen[1] = -1;
-			zmq_msg.buflen[2] = -1;
-			zmq_msg.buflen[3] = -1;
-			zmq_msg.version = 1;
-			zmq_msg_ix=0;
+		zmq_context = zmq_ctx_new ();
+		zmq_publisher = zmq_socket (zmq_context, ZMQ_PUB);
+		zmq_bind (zmq_publisher, outpath+4);
+		zmq_msg.buflen[0] = -1;
+		zmq_msg.buflen[1] = -1;
+		zmq_msg.buflen[2] = -1;
+		zmq_msg.buflen[3] = -1;
+		zmq_msg.version = 1;
+		zmq_msg_ix=0;
 #else
-			ERROR("ZEROMQ is disabled! Can't stream to specified destination: %s", outpath);
-			exit(-1);
+		ERROR("ZEROMQ is disabled! Can't stream to specified destination: %s", outpath);
+		exit(-1);
 #endif
-
-		}
-	} else {
-		ERROR("NO out path provided");
 	}
 
 
@@ -293,7 +309,10 @@ int main(int i_argc, char **ppsz_argv)
 			size_t i_ret = fread(p_ni_search_block + bytes_readed, ETI_NI_RAW_SIZE - bytes_readed, 1, inputfile);
 			if(i_ret != 1){
 				ERROR("Can't read from file in %ld loop, total read: %d", count, total_readed);
-				exit(1);
+				if(!loop) 
+					exit(1);
+				fseek(inputfile, 0, SEEK_SET);
+				continue;	
 			}
 			total_readed += ETI_NI_RAW_SIZE - bytes_readed;
 			bytes_readed = ETI_NI_RAW_SIZE;
@@ -336,16 +355,17 @@ int main(int i_argc, char **ppsz_argv)
 		DEBUG("MST len=%d", (fc.fl - (1 + 1 + fc.nst))*4);
 #endif
 
+	    	int is_written = 0;
 #ifdef HAVE_ZMQ
-		write_zmq(zmq_publisher, p_ni_search_block, ETI_NI_RAW_SIZE);
+		is_written=write_zmq(zmq_publisher, p_ni_search_block, ETI_NI_RAW_SIZE);
 #endif
 
-		if(delay) {
+		if(delay && is_written) {
 			gettimeofday(&endTV, NULL);
 			timersub(&endTV, &startTV, &diff1);
-			if(diff1.tv_sec == 0 && diff1.tv_usec < ETI_NI_FRAME_TIME) {
+			if(diff1.tv_sec == 0 && diff1.tv_usec < ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE) {
 				startTV.tv_sec=0;
-				startTV.tv_usec=ETI_NI_FRAME_TIME;
+				startTV.tv_usec=ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE;
 				timersub(&startTV, &diff1, &diff2);
 				usleep(diff2.tv_usec);
 			}
