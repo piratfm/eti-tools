@@ -17,6 +17,7 @@ Table of Content
   * [ts2na](#ts2na)
   * [na2ni](#eti-na2ni)
   * [edi2eti](#eti-edi2eti)
+  * [eti2zmq](#eti-eti2zmq)
   * [ni2http](#eti-ni2http)
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
   * [Guide](#guide)
@@ -113,6 +114,19 @@ Sample of receiving multicast stream and convert it to ZeroMQ:
 Sample of receiving multicast stream and save it to file:
 
     ./edi2eti -o "out.eti"  232.20.10.1:12000
+
+ETI eti2zmq
+----------------
+
+**eti2zmq** is a ETI-NI to ZeroMQ converter. This tool plays ETI-file and publish it as server, just like ODR-DAbMUX. It simulates pseudo-realtile streaming by adding proper delay between sent frames. It also able to play files in a loop.
+
+    usage: ./eti2zmq [-i <input-file.eti>]-o <zeromq-uri>
+
+The input stream must be 6144-bytes aligned raw ETI-NI
+
+Sample of playing "kbs.eti" file in-a-loop with pseudo-realtime streaming and app's activity indication:
+
+    ./eti2zmq -i kbs.eti -a -l -d -o "zmq+tcp://*:18982"
 
 
 ETI ni2http
