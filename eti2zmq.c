@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -141,57 +140,22 @@ int write_zmq(void *privData, void *etiData, int etiLen)
         for (i = 0; i < NUM_FRAMES_PER_ZMQ_MESSAGE; i++) {
         	zmq_msg.buflen[i] = -1;
         }
-	return 1;
-    } else {
-    	return 0;
+        return 1;
     }
+    return 0;
 }
 #endif
 
-
-
-
-void print_bytes(char *bytes, int len)
-{
-    int i;
-    int count;
-    int done = 0;
-
-    while (len > done) {
-		if (len - done > 32){
-			count = 32;
-		} else {
-			count = len - done;
-		}
-
-		fprintf(stderr, "%08x:    ", done);
-
-		for (i=0; i<count; i++) {
-	    	fprintf(stderr, "%02x ", (int)((unsigned char)bytes[done+i]));
-	    	if(i==15)
-	    		fprintf(stderr, "| ");
-		}
-
-		for (i=count; i<32; i++) {
-    		fprintf(stderr, "   ");
-	    	if(i==15)
-	    		fprintf(stderr, "| ");
-		}
-
-
-		fprintf(stderr, "        \"");
-
-        for (i=0; i<count; i++) {
-	    	fprintf(stderr, "%c", isprint(bytes[done+i]) ? bytes[done+i] : '.');
-	    	if(i==15)
-	    		fprintf(stderr, "|");
-        }
-        fprintf(stderr, "\"\n");
-    	done += count;
+void timespec_diff(const struct timespec *start, const struct timespec *stop, struct timespec *result) {
+    if ((stop->tv_nsec - start->tv_nsec) < 0) {
+        result->tv_sec = stop->tv_sec - start->tv_sec - 1;
+        result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000L;
+    } else {
+        result->tv_sec = stop->tv_sec - start->tv_sec;
+        result->tv_nsec = stop->tv_nsec - start->tv_nsec;
     }
+    return;
 }
-
-
 
 int main(int i_argc, char **ppsz_argv)
 {   
@@ -276,7 +240,7 @@ int main(int i_argc, char **ppsz_argv)
 	}
 
 
-
+    fprintf(stderr, "loop=%d, delay=%d, activity=%d, outpath=\"%s\"\n", loop, delay, activity, outpath);
 
     /* space for 1 ETI frame for bitwise seeking */
     int bytes_readed = 0;
@@ -286,19 +250,17 @@ int main(int i_argc, char **ppsz_argv)
     int total_readed = 0;
 
     unsigned long int count = 0;
-    struct timeval diff1, diff2, startTV, endTV;
-    if(delay)
-        gettimeofday(&startTV, NULL);
+    struct timespec time_start;
+    clock_gettime(CLOCK_MONOTONIC, &time_start);
 
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
     signal(SIGTERM, signal_handler);
 
 
+
     char ui[4] = { '-', '\\', '|', '/' };
     int vertex=0;
-    clock_t start_time = clock();
-
     /* search for ETI-NI sync */
     do {
 		bytes_readed=0;
@@ -312,12 +274,12 @@ int main(int i_argc, char **ppsz_argv)
 		do {
 			size_t i_ret = fread(p_ni_search_block + bytes_readed, ETI_NI_RAW_SIZE - bytes_readed, 1, inputfile);
 			if(i_ret != 1){
-				ERROR("Can't read from file in %ld loop, total read: %d", count, total_readed);
+				ERROR("EOF reached... (%ld/%d)\n", count, total_readed);
 				if(!loop) 
 					exit(1);
 				fseek(inputfile, 0, SEEK_SET);
-                                sync_found=0;
-                                bytes_readed=0;
+				sync_found=0;
+				bytes_readed=0;
 				continue;	
 			}
 			total_readed += ETI_NI_RAW_SIZE - bytes_readed;
@@ -367,24 +329,18 @@ int main(int i_argc, char **ppsz_argv)
 #endif
 
 		if(delay && is_written) {
-#if 0
-			gettimeofday(&endTV, NULL);
-			timersub(&endTV, &startTV, &diff1);
-			if(diff1.tv_sec == 0 && diff1.tv_usec < ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE) {
-				startTV.tv_sec=0;
-				startTV.tv_usec=ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE;
-				timersub(&startTV, &diff1, &diff2);
-				usleep(diff2.tv_usec);
+			struct timespec time_now, time_nosleep;
+			clock_gettime(CLOCK_MONOTONIC, &time_now);
+			timespec_diff(&time_start, &time_now, &time_nosleep);
+			time_start.tv_nsec=time_start.tv_nsec + ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE*1000;
+			if(time_start.tv_nsec >= 1000000000L) {
+				time_start.tv_nsec -= 1000000000L;
+				time_start.tv_sec++;
 			}
-			startTV=endTV;
-#else
-                       clock_t end_time = clock();
-                       clock_t start_end_diff = (end_time - start_time) * 1000000 / CLOCKS_PER_SEC;
-                       if(start_end_diff < ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE) {
-                               usleep(ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE - start_end_diff);
-                       }
-                       start_time = end_time;
-#endif
+			time_nosleep.tv_nsec=(ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE*1000 - time_nosleep.tv_nsec);
+			if(time_nosleep.tv_sec==0 &&  time_nosleep.tv_nsec > 0) {
+				clock_nanosleep(CLOCK_MONOTONIC, 0, &time_nosleep, NULL);
+			}
 		}
 
 
@@ -400,5 +356,3 @@ int main(int i_argc, char **ppsz_argv)
     fclose(inputfile);
     return 0;
 }
-
-
