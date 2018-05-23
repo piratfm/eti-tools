@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
+#include <time.h>
 
 #ifdef HAVE_ZMQ
 #include <zmq.h>
@@ -296,6 +297,7 @@ int main(int i_argc, char **ppsz_argv)
 
     char ui[4] = { '-', '\\', '|', '/' };
     int vertex=0;
+    clock_t start_time = clock();
 
     /* search for ETI-NI sync */
     do {
@@ -365,6 +367,7 @@ int main(int i_argc, char **ppsz_argv)
 #endif
 
 		if(delay && is_written) {
+#if 0
 			gettimeofday(&endTV, NULL);
 			timersub(&endTV, &startTV, &diff1);
 			if(diff1.tv_sec == 0 && diff1.tv_usec < ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE) {
@@ -373,8 +376,15 @@ int main(int i_argc, char **ppsz_argv)
 				timersub(&startTV, &diff1, &diff2);
 				usleep(diff2.tv_usec);
 			}
-
 			startTV=endTV;
+#else
+                       clock_t end_time = clock();
+                       clock_t start_end_diff = (end_time - start_time) * 1000000 / CLOCKS_PER_SEC;
+                       if(start_end_diff < ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE) {
+                               usleep(ETI_NI_FRAME_TIME*NUM_FRAMES_PER_ZMQ_MESSAGE - start_end_diff);
+                       }
+                       start_time = end_time;
+#endif
 		}
 
 
