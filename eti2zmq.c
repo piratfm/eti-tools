@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/time.h>
-#include <endian.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
@@ -43,7 +42,7 @@ extern struct ens_info einf;
 static void usage(const char *psz)
 {
     fprintf(stderr, "usage: %s [--delay] [-i <inputfile>] -o zmq+tcp://0.0.0.0:18082\n\n"
-	    "Additional info related to arguments:\n",
+	    "Additional info related to arguments:\n"
 	    "--input or -i <filename>	 	Provide input file for app\n"
 	    "--output or -o <zeromq address>    Provide zeromq output address like zmq+tcp://[local_ip]:[port_to_listen]\n"
 	    "--delay or -d                      Force pseudo-realtume streaming (add 24ms delay for each eti frame)\n"
@@ -291,6 +290,9 @@ int main(int i_argc, char **ppsz_argv)
         gettimeofday(&startTV, NULL);
 
     signal(SIGINT, signal_handler);
+    signal(SIGKILL, signal_handler);
+    signal(SIGTERM, signal_handler);
+
 
     char ui[4] = { '-', '\\', '|', '/' };
     int vertex=0;
@@ -312,6 +314,8 @@ int main(int i_argc, char **ppsz_argv)
 				if(!loop) 
 					exit(1);
 				fseek(inputfile, 0, SEEK_SET);
+                                sync_found=0;
+                                bytes_readed=0;
 				continue;	
 			}
 			total_readed += ETI_NI_RAW_SIZE - bytes_readed;
