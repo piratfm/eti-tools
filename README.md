@@ -197,16 +197,18 @@ Satellite DAB(+) feeds
 
 This is an exclusive list of satellite feeds that you can use with the tool `ts2na` or with https://github.com/newspaperman/tsniv2ni which works for ETI-NA(V.11) (see last column).
 
+In some cases (for 7.0°E) you have to use `odr-dabmod` and configure multicast.
+
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
 -- | -- | -- | -- | -- | -- | -- | -- | -- | --
 Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
 SWR BW S (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.132.1.50:5004 | 101 | n/a | n/a | Pending (EDI?)
-Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.11:60011 | 101 | n/a | n/a | Pending (EDI?)
+Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.11:60011 | 101 | n/a | n/a | OK (EDI)
 Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.13:60013 | 101 | n/a | n/a | Pending (EDI?)
 Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.17:60017 | 101 | n/a | n/a | Pending (EDI?)
-Nby/Opf (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.14:60014 | 101 | n/a | n/a | Pending (EDI?)
-Obb/Schw (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.15:60015 | 101 | n/a | n/a | Pending (EDI?)
+Nby/Opf (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.14:60014 | 101 | n/a | n/a | OK (EDI)
+Obb/Schw (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.15:60015 | 101 | n/a | n/a | OK (EDI)
 Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025 | n/a | n/a | OK (V.11)
 BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
 D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
