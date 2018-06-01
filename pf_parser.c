@@ -48,10 +48,7 @@ int HandlePFPacket(edi_handler_t *h, uint8_t *edi_pkt, size_t pktsize)
     h->pf._Addr = unpack1bit(edi_pkt[index], 1);
     h->pf._Plen = read_16b(edi_pkt+index) & 0x3FFF; index += 2;
 
-    const size_t required_len = PFPACKET_HEADER_LEN +
-        (h->pf._FEC ? 1 : 0) +
-        (h->pf._Addr ? 2 : 0) +
-        2; // CRC
+    const size_t required_len = PFPACKET_HEADER_LEN + (h->pf._FEC ? 2 : 0) + (h->pf._Addr ? 4 : 0);
     if (pktsize < required_len) {
         return 0;
     }
@@ -197,11 +194,13 @@ static bool decodePFTFrags(struct afBuilders *afb, uint8_t _pseqIdx, uint32_t *e
     // EDI specific, must have a CRC.
     if( _afSingle->bytesCollected >= 12 ) {
 
-    	//msg_Dump(afb->afPacket, _afSingle->bytesCollected);
+       //msg_Dump(afb->afPacket, _afSingle->bytesCollected);
+        if(!(afb->afPacket[8] & 0x80))
+            return true; //no CRC
 
         bool ok = checkCRC(afb->afPacket, _afSingle->bytesCollected);
         if (!ok) {
-        	msg_Log("EDI-PF: Too many errors to reconstruct AF");
+        	msg_Log("EDI-PF: CRC error to reconstruct AF");
         } else {
         	if (verbosity > 3)
         		msg_Log("EDI-PF: CRC OK!, corrected: %u/%d!!!!!!!!!!!", *errors, _afSingle->bytesCollected);
@@ -364,7 +363,8 @@ int pushPFTFrag(struct pfPkt *pf, struct afBuilders *afb)
 	if(!_afSingle->packetsIsProcessed) {
 		//copy new pf packet to it's place in buffer.
 		if(!_afSingle->packetReceived[pf->_Findex]) {
-			memcpy(_afSingle->pfPackets + pf->_Findex*pf->_Plen, pf->_payload, pf->_Plen);
+			//fix: last can be smaller
+			memcpy(_afSingle->pfPackets + pf->_Findex*afb->Plen, pf->_payload, pf->_Plen);
 			_afSingle->packetReceived[pf->_Findex]=1;
 			_afSingle->bytesCollected += pf->_Plen;
 			_afSingle->fragmentsCollected++;

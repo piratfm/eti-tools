@@ -319,8 +319,6 @@ int main(int argc, char **argv) {
 		alarm(timeout);
 	}
 
-	signal(SIGINT, signal_handler);
-
 	buff = malloc(8192);
 	sock = input_init_udp(ip, port);
 	if (!sock) {
