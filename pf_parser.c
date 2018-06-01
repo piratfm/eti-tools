@@ -31,10 +31,12 @@
  *****************************************************************************/
 int HandlePFPacket(edi_handler_t *h, uint8_t *edi_pkt, size_t pktsize)
 {
-	if(pktsize < PFPACKET_HEADER_LEN || edi_pkt[0] != 'P' || edi_pkt[1] != 'F') {
-		msg_Log("EDI-PF: Invalid PFT SYNC bytes");
-		return -1;
-	}
+    if(pktsize < PFPACKET_HEADER_LEN)
+        return -1;
+    if(edi_pkt[0] != 'P' || edi_pkt[1] != 'F') {
+        msg_Log("EDI-PF: Invalid PFT SYNC bytes '%c%c' len=%d", isprint(edi_pkt[0]) ? edi_pkt[0] : '.', isprint(edi_pkt[1]) ? edi_pkt[1] : '.', pktsize);
+        return -1;
+    }
 
     size_t index = 0;
 
