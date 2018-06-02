@@ -82,10 +82,10 @@ int AssembleETIFrame(struct etiBuilder *h, int fmt, callback_t outCallback, void
     //  FL 11 bits
 
     // FL: EN 300 799 5.3.6
-    uint16_t FL = NST + 1 + h->fic_length;
+    uint16_t FL = NST + 1 + h->fic_length/4;
     for (i=0;i<NST;i++) {
         //fprintf(stderr,"assemble: subch.stream_index=%d, subch.scid=%d subch.sad=%d len:%d FL=%d\n",subch.stream_index, subch.scid, subch.sad, subch.mst.size(), FL);
-        FL += h->m_stc[i].mst_size;
+        FL += h->m_stc[i].mst_size/4;
     }
 
     const uint16_t fp_mid_fl = (h->m_fc.fp << 13) | (h->m_fc.mid << 11) | FL;
