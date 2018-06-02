@@ -252,7 +252,7 @@ int pushPFTFrag(struct pfPkt *pf, struct afBuilders *afb)
     if (!checkConsistency(pf, afb)) {
 
     	//last packet can be smaller if no FEC, ignore it.
-    	if(!pf->_FEC && pf->_Findex+1 == pf->_Fcount)
+    	if(!pf->_FEC && pf->_Fcount > 1 && pf->_Findex+1 == pf->_Fcount)
     		return 0;
 
     	msg_Log("Initialise next pseq to %u", pf->_Pseq);
