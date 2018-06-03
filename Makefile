@@ -8,6 +8,7 @@ OBJS_NA2TS = na2ts.o
 OBJS_NA2NI = na2ni.o
 OBJS_NI2HTTP = ni2http.o wffigproc.o wfficproc.o wfbyteops.o wftables.o wffirecrc.o wfcrc.o parse_config.o
 OBJS_NI2OUT = ni2out.o wffigproc.o wfficproc.o wfbyteops.o wftables.o wffirecrc.o wfcrc.o
+OBJS_ETI2ZMQ = eti2zmq.o
 CFLAGS += -I.
 LDFLAGS += -lm
 
@@ -49,6 +50,10 @@ na2ts: $(OBJS_NA2TS)
 na2ni: $(OBJS_NA2NI)
 	$(CC) -o $@ $(OBJS_NA2NI) $(LDFLAGS)
 
+eti2zmq: $(OBJS_ETI2ZMQ)
+	$(CC) -o $@ $(OBJS_ETI2ZMQ) $(LDFLAGS)
+
+
 ni2http: libshout-2.2.2/src/.libs/libshout.a $(OBJS_NI2HTTP)
 	$(CC) -o $@ $(OBJS_NI2HTTP) libshout-2.2.2/src/.libs/libshout.a -lpthread $(LDFLAGS)
 
@@ -59,8 +64,8 @@ libshout-2.2.2/src/.libs/libshout.a:
 	tar -xvzf libshout-2.2.2.tar.gz; cd libshout-2.2.2; ./configure --enable-shared=no --enable-static=yes; make; cd ..;
 
 cleanapps:
-	rm -f $(OBJS_EDI2ETI) $(OBJS_FEDI2ETI) $(OBJS_TS2NA) $(OBJS_TS2NA_DREAMBOX) $(OBJS_NA2NI) $(OBJS_NA2TS) $(OBJS_NI2HTTP) $(OBJS_NI2OUT)
-	rm -f ts2na na2ts na2ni ni2http edi2eti fedi2eti ni2out
+	rm -f $(OBJS_EDI2ETI) $(OBJS_FEDI2ETI) $(OBJS_TS2NA) $(OBJS_TS2NA_DREAMBOX) $(OBJS_NA2NI) $(OBJS_NA2TS) $(OBJS_NI2HTTP) $(OBJS_ETI2ZMQ) $(OBJS_NI2OUT)
+	rm -f ts2na na2ts na2ni ni2http edi2eti eti2zmq fedi2eti ni2out
 
 clean: cleanapps
 	if [ -f ./libshout-2.2.2/src/.libs/libshout.a ]; then cd libshout-2.2.2; make clean; cd ..;  fi;

@@ -60,7 +60,7 @@ extern struct ens_info einf;
 
 static void usage(const char *psz)
 {
-    fprintf(stderr, "usage: %s [--list] [--delay] [-i <inputfile>] [-c <config_file>]\n", psz);
+    fprintf(stderr, "usage: %s [--list] [--delay] [-i <inputfile>] [-c <config_file>] [-s <SID>]\n", psz);
     exit(EXIT_FAILURE);
 }
 
@@ -954,12 +954,13 @@ int main(int i_argc, char **ppsz_argv)
     static const struct option long_options[] = {
         { "input",         required_argument,       NULL, 'i' },
         { "config",        required_argument,       NULL, 'c' },
+        { "sid",           required_argument,       NULL, 's' },
         { "delay",        no_argument,               NULL, 'd' },
         { "list",        no_argument,       		NULL, 'l' },
         { 0, 0, 0, 0 }
     };
-    
-    while ((c = getopt_long(i_argc, ppsz_argv, "i:c:ldh", long_options, NULL)) != -1)
+
+    while ((c = getopt_long(i_argc, ppsz_argv, "i:c:s:ldh", long_options, NULL)) != -1)
     {
         switch (c) {
         case 'i':
@@ -974,6 +975,36 @@ int main(int i_argc, char **ppsz_argv)
         	parse_config(optarg);
         	config_parsed=1;
             break;
+
+        case 's': {
+            // Allocate memory for channel structure
+            ni2http_channel_t* chan = calloc( 1, sizeof(ni2http_channel_t) );
+            if (!chan) {
+                perror("Failed to allocate memory for new channel");
+                exit(-1);
+            }
+
+            chan->num = 0;
+            chan->shout = NULL;
+            chan->file = stdout;
+            chan->zmq_sock = NULL;
+            sprintf(chan->file_name, "stdout");
+            chan->extract_dabplus = 1;
+            chan->extract_pad = 1;
+
+            chan->sid = strtoul(optarg, NULL, 0);
+            if (chan->sid == 0) {
+                ERROR("invalid SID!");
+                exit(-1);
+            }
+
+            // map channel
+            channels[0] = chan;
+            channel_count++;
+
+            config_parsed = 1;
+            break;
+        }
 
         case 'l':
         	list=1;
@@ -1109,7 +1140,9 @@ int main(int i_argc, char **ppsz_argv)
 
 						if(strlen(channels[ch]->file_name) > 0) {
 							INFO("Writing to: %s", channels[ch]->file_name);
-							channels[ch]->file = fopen(channels[ch]->file_name, "a+");
+							if(!channels[ch]->file) {
+								channels[ch]->file = fopen(channels[ch]->file_name, "a+");
+							}
 							if(!channels[ch]->file) {
 								INFO("sid[%d]: can't open output dump file %s.", s_data->sid, channels[ch]->file_name);
 							} else {
