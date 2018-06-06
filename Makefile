@@ -28,7 +28,7 @@ LDFLAGS += -lm
 #LDFLAGS+= -lfec
 
 
-all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti
+all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
