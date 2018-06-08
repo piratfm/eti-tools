@@ -297,10 +297,10 @@ void callback(mpegts_psi_t *psi)
     len_udp -= 8;
     unsigned char *payload = udp + 8;
 
-    /* try to locate aac magic */
+    /* try to locate aac magic mpeg2 or mpeg4 */
     while (len_udp > 8)
     {
-        if (memcmp(payload, "\xFF\xF9", 2) == 0) break;
+        if (memcmp(payload, "\xFF\xF9", 2) == 0 || memcmp(payload, "\xFF\xF1", 2) == 0) break;
         payload += 8;
         len_udp -= 8;
     }
