@@ -301,8 +301,8 @@ void callback(mpegts_psi_t *psi)
     while (len_udp > 8)
     {
         if (memcmp(payload, "\xFF\xF9", 2) == 0 || memcmp(payload, "\xFF\xF1", 2) == 0) break;
-        payload += 8;
-        len_udp -= 8;
+        payload += 1;
+        len_udp -= 1;
     }
 
     /* when aac located successfully */
