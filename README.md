@@ -29,6 +29,14 @@ Prerequisitions
 ----------------
 
 Additional libraries which are needed:
+
+* cmake (needed for libfec)
+
+  For Debian (incl. Ubuntu and derivates)
+
+      sudo apt-get install cmake
+
+
 * [libfec](https://github.com/Opendigitalradio/ka9q-fec) - for Reed-Solomon FEC, may be enabled/disabled.
 
       git clone https://github.com/Opendigitalradio/ka9q-fec.git
