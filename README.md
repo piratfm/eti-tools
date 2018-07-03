@@ -203,13 +203,13 @@ If you wish to re-stream to ODR-DabMUX then set the destination of the ZeroMQ UR
 Satellite DAB(+) feeds
 ----------------
 
-This is an exclusive list of satellite feeds that you can use with `ts2na`, `edi2eti` (both from these `eti-tools`) or with [tsniv2ni](https://github.com/newspaperman/tsniv2ni) which works for ETI-NA(V.11) (see last column).
+This is an exclusive list of satellite feeds that you can use with `ts2na`, `edi2eti` (both from these `eti-tools`) or with [tsniv2ni](https://github.com/newspaperman/tsniv2ni) which works for ETI-NA(V.11).
 
 Please note that you need `eti-tools` from June 2018 or later for EDI.
 
-### working with eti-tools
+### DAB-Ensembles working with eti-tools
 
-The format is MPEG-TS, which you have to convert into to ETI-NA and then to ETI-NI.
+The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
@@ -220,25 +220,25 @@ D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
 SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
-  |   |   |   |   |   |   |  |
+  
 
-### working with eti-tools
+### DAB-Ensembles working with eti-tools
 
 The format is EDI.
 
-Ensemble | Country | Sat | Freq | SR/FEC | Modulation and IP-Address | PID
--- | -- | -- | -- | -- | -- | --
-SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.132.1.50:5004 | 101
-Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.11:60011 | 101
-Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.13:60013 | 101
-Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.17:60017 | 101
-Niederbayern (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.16:60016 | 101
-Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.15:60015 | 101
-  |   |   |   |   |   |   |
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation | IP-Address:Port| PID
+-- | -- | -- | -- | -- | -- | -- | --
+SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.132.1.50:5004 | 101
+Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.11:60011 | 101
+Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.13:60013 | 101
+Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.17:60017 | 101
+Niederbayern (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.16:60016 | 101
+Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.15:60015 | 101
+  
 
-### (currently) not working with eti-tools
+### DAB-Ensembles (currently) not working
 
-The format might be EDI, the reception is limited to only a few DVB-cards, as this is GSE.
+The format might be EDI, the reception is limited to only a few DVB-cards, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation
 -- | -- | -- | -- | -- | -- 
@@ -248,9 +248,9 @@ NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
 NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
 NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
 NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
-  |   |   |   |   |   |   
 
-### working with tsniv2ni
+
+### Ensembles working with tsniv2ni
 
 The format is ETI-NA(V.11)
 
@@ -260,25 +260,29 @@ Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025
 ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 
 DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 
 EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 
-  |   |   |   |   |   |   
+
 
 ## Guide
 
-If you want to use one of these feeds, here's a guide how to do it (see below for an example):
+If you want to listen to one of these feeds, here's a guide how to do it (see below for some examples):
 
 ### dvbstream 
 
-``` 
-dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2http --list
-```
+    dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2http --list
+    
 for UK's SDL National Mux or
 
-``` 
-dvbstream -f 12734000 -s 16751 1010 -p V -o | tsniv2ni/tsniv2ni 1010
-``` 
+    dvbstream -f 12734000 -s 16751 1010 -p V -o | tsniv2ni 1010
+    
 for the Greek Mux.
 
 Please consider to add `-D x` (which stands for DiSEqC) if you have more than one LNB.
+
+If you also have installed the fork https://github.com/satdreamgr/eti-tools then you can hear the German EDI streams even without setting up a DVB network connection with the new tool `fedi2eti`:
+
+    dvbstream -f 12572000 -s 6805 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
+
+for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
 ### Alternative
 
