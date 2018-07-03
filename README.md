@@ -207,32 +207,60 @@ This is an exclusive list of satellite feeds that you can use with `ts2na`, `edi
 
 Please note that you need `eti-tools` from June 2018 or later for EDI.
 
-Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset | Check
--- | -- | -- | -- | -- | -- | -- | -- | -- | --
-Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3 | OK
-WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3 | OK
-SWR BW S (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.132.1.50:5004 | 101 | n/a | n/a | OK (EDI)
-Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.11:60011 | 101 | n/a | n/a | OK (EDI)
-Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.13:60013 | 101 | n/a | n/a | OK (EDI)
-Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.17:60017 | 101 | n/a | n/a | OK (EDI)
-Nby/Opf (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.14:60014 | 101 | n/a | n/a | OK (EDI)
-Obb/Schw (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.15:60015 | 101 | n/a | n/a | OK (EDI)
-Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025 | n/a | n/a | OK (V.11)
-BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12 | OK
-D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12 | OK
-SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12 | OK
-D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12 | OK
-SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12 | OK
-ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 | n/a | n/a | OK (V.11)
-NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 | DVB-GSE | ?? | n/a | Pending (EDI?) 
-DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 | n/a | n/a | OK (V.11)
-EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 | n/a | n/a | OK (V.11)
-  |   |   |   |   |   |   |   |  |
+### working with eti-tools
+
+The format is MPEG-TS, which you have to convert into to ETI-NA and then to ETI-NI.
+
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
+-- | -- | -- | -- | -- | -- | -- | -- | -- 
+Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3
+WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3
+BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
+D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
+SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
+D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
+SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
+  |   |   |   |   |   |   |  |
+
+### working with eti-tools
+
+The format is EDI.
+
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation and IP-Address | PID
+-- | -- | -- | -- | -- | -- | --
+SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.132.1.50:5004 | 101
+Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.11:60011 | 101
+Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.13:60013 | 101
+Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.17:60017 | 101
+Niederbayern (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.16:60016 | 101
+Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 DVB-IP 239.16.242.15:60015 | 101
+  |   |   |   |   |   |   |
+
+### (currently) not working with eti-tools
+
+The format might be EDI, the reception is limited to only a few DVB-cards, as this is GSE.
+
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation
+-- | -- | -- | -- | -- | -- 
+NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE 
+NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE 
+NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
+NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
+NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
+NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
+  |   |   |   |   |   |   
+
+### working with tsniv2ni
+
+The format is ETI-NA(V.11)
+
+Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID 
+-- | -- | -- | -- | -- | -- | -- 
+Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025 
+ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 
+DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 
+EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 
+  |   |   |   |   |   |   
 
 ## Guide
 
