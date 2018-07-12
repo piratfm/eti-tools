@@ -256,7 +256,6 @@ The format is ETI-NA(V.11)
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID 
 -- | -- | -- | -- | -- | -- | -- 
-Bayern 11D | Germany | 7.0ºE | 12537V | 996 2/3 | QPSK/DVB-S2 ACM | 1025 
 ERT DAB | Greece | 3.1ºE | 12734V | 16751 3/5 | QPSK/DVB-S2 | 1010 
 DAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 777 
 EuroDAB Italia | Italy | 12.5ºW | 12518H | 2154 3/5 | QPSK/DVB-S2 | 1025 
