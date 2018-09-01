@@ -228,12 +228,12 @@ The format is EDI.
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | IP-Address:Port| PID
 -- | -- | -- | -- | -- | -- | -- | --
-SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.132.1.50:5004 | 101
-Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.11:60011 | 101
-Unterfranken (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.13:60013 | 101
-Bayern (11D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.17:60017 | 101
-Niederbayern (7D) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.16:60016 | 101
-Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 6805 2/3 | QPSK/DVB-S2 | 239.16.242.15:60015 | 101
+SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.132.1.50:5004 | 101
+Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.11:60011 | 101
+Unterfranken (10A) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.13:60013 | 101
+Bayern (11D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.17:60017 | 101
+Niederbayern (7D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.16:60016 | 101
+Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.15:60015 | 101
   
 
 ### DAB-Ensembles (currently) not working
