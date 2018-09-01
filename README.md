@@ -279,7 +279,7 @@ Please consider to add `-D x` (which stands for DiSEqC) if you have more than on
 
 If you also have installed the fork https://github.com/satdreamgr/eti-tools then you can hear the German EDI streams even without setting up a DVB network connection with the new tool `fedi2eti`:
 
-    dvbstream -f 12572000 -s 6805 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
+    dvbstream -f 12572000 -s 7940 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
