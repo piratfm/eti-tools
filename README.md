@@ -211,6 +211,8 @@ Please note that you need `eti-tools` from June 2018 or later for EDI.
 
 The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 
+Note: The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream.
+
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
 Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3
@@ -220,34 +222,40 @@ D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
 SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
+RAI DAB+ | Italy | 5.0°W | 11013V | 30000 3/5 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
   
 
 ### DAB-Ensembles working with eti-tools
 
-The format is EDI.
+The format is EDI. 
 
-Ensemble | Country | Sat | Freq | SR/FEC | Modulation | IP-Address:Port| PID
--- | -- | -- | -- | -- | -- | -- | --
-SWR Baden Württemberg South (8A and 8D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.132.1.50:5004 | 101
-Oberfranken (10B)  | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.11:60011 | 101
-Unterfranken (10A) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.13:60013 | 101
-Bayern (11D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.17:60017 | 101
-Niederbayern (7D) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.16:60016 | 101
-Oberbayern and Schwaben (10A) | Germany | 7.0ºE | 12572V | 7940 2/3 | QPSK/DVB-S2 | 239.16.242.15:60015 | 101
+All of them are from Germany and can be found on7.0ºE, 12572V, Symbol rate 7940, FEC 2/3 in QPSK/DVB-S2 with PID 101|
+
+Ensemble | IP-Address:Port
+-- | --
+SWR BW S (Baden Württemberg South, 8A and 8D) | 239.132.1.50:5004
+Oberfranken (10B)  | 239.16.242.11:60011
+Unterfranken (10A) | 239.16.242.13:60013
+Bayern (11D) | 239.16.242.17:60017
+Niederbayern (7D) | 239.16.242.16:60016
+Obb/Schw (Oberbayern and Schwaben, 10A) | 239.16.242.15:60015
+hr radio Hessen (7B) | 239.192.254.200:10000
   
 
 ### DAB-Ensembles (currently) not working
 
 The format might be EDI, the reception is limited to only a few DVB-cards, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
-Ensemble | Country | Sat | Freq | SR/FEC | Modulation
--- | -- | -- | -- | -- | -- 
-NRK Reg2 BuTeVe | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE 
-NRK Reg3 SørRog | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE 
-NRK Reg4 HoSoFj | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
-NRK Reg5 HedOpp | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
-NRK Reg6 TrøMøRo | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
-NRK Reg7 NoTrFi | Norway | 1.0ºW | 10719V | 4800 3/4 | DVB-S2/MIS=171 DVB-GSE
+They are from Norway on 1.0ºW, 10719V, 4800 3/4 in DVB-S2/MIS=171 DVB-GSE 
+
+Ensemble|
+--|
+NRK Reg2 BuTeVe |
+NRK Reg3 SørRog |
+NRK Reg4 HoSoFj |
+NRK Reg5 HedOpp |
+NRK Reg6 TrøMøRo |
+NRK Reg7 NoTrFi | 
 
 
 ### Ensembles working with tsniv2ni
