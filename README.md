@@ -223,6 +223,9 @@ SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 RAI DAB+ | Italy | 5.0°W | 11013V | 30000 3/5 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
+TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | - | 0 
+
+Note: TRT DAB+ is already an NI compatible stream! There is no need to use `ni2na` in this case!
   
 
 ### DAB-Ensembles working with eti-tools
