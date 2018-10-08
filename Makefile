@@ -66,7 +66,7 @@ mpe2aac: $(OBJS_MPE2AAC)
 	$(CC) -o $@ $(OBJS_MPE2AAC) $(LDFLAGS)
 
 mpe2ts: $(OBJS_MPE2TS)
-	$(CC) -o $@ ($OBJS_MPE2TS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS_MPE2TS) $(LDFLAGS)
 
 libshout-2.2.2/src/.libs/libshout.a:
 	tar -xvzf libshout-2.2.2.tar.gz; cd libshout-2.2.2; ./configure --enable-shared=no --enable-static=yes; make; cd ..;
