@@ -67,7 +67,7 @@ Installation
     git clone https://github.com/piratfm/eti-tools.git
     cd eti-tools/
 
-If you need to disable ZeroMQ (see above): Edit `Makefile` and comment (= add `#` in front of) lines 16 and 17, then
+If you need to disable ZeroMQ (see above): Edit `Makefile` and comment (= add `#` in front of) lines 17 and 18, then
 
     make
 
