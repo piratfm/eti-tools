@@ -31,7 +31,7 @@ LDFLAGS += -lm
 #LDFLAGS+= -lfec
 
 
-all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts ott
+all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
