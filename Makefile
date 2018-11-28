@@ -11,6 +11,7 @@ OBJS_NI2OUT = ni2out.o wffigproc.o wfficproc.o wfbyteops.o wftables.o wffirecrc.
 OBJS_MPE2AAC = mpe2aac.o
 OBJS_MPE2MPA = mpe2mpa.o
 OBJS_MPE2TS = mpe2ts.o
+OBJS_DVBIPMPEG2TS = dvb-ip-mpe2ts.o
 OBJS_ETI2ZMQ = eti2zmq.o
 CFLAGS += -I.
 LDFLAGS += -lm
@@ -30,7 +31,7 @@ LDFLAGS += -lm
 #LDFLAGS+= -lfec
 
 
-all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts
+all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts ott
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -72,12 +73,15 @@ mpe2mpa: $(OBJS_MPE2MPA)
 mpe2ts: $(OBJS_MPE2TS)
 	$(CC) -o $@ $(OBJS_MPE2TS) $(LDFLAGS)
 
+dvb-ip-mpe2ts: $(OBJS_DVBIPMPEG2TS)
+	$(CC) -o $@ $(OBJS_DVBIPMPEG2TS) $(LDFLAGS)
+
 libshout-2.2.2/src/.libs/libshout.a:
 	tar -xvzf libshout-2.2.2.tar.gz; cd libshout-2.2.2; ./configure --enable-shared=no --enable-static=yes; make; cd ..;
 
 cleanapps:
-	rm -f $(OBJS_EDI2ETI) $(OBJS_FEDI2ETI) $(OBJS_TS2NA) $(OBJS_TS2NA_DREAMBOX) $(OBJS_NA2NI) $(OBJS_NA2TS) $(OBJS_NI2HTTP) $(OBJS_ETI2ZMQ) $(OBJS_NI2OUT) $(OBJS_MPE2AAC) $(OBJS_MPE2TS)
-	rm -f ts2na na2ts na2ni ni2http edi2eti eti2zmq fedi2eti ni2out mpe2aac mpe2mpa mpe2ts
+	rm -f $(OBJS_EDI2ETI) $(OBJS_FEDI2ETI) $(OBJS_TS2NA) $(OBJS_TS2NA_DREAMBOX) $(OBJS_NA2NI) $(OBJS_NA2TS) $(OBJS_NI2HTTP) $(OBJS_ETI2ZMQ) $(OBJS_NI2OUT) $(OBJS_MPE2AAC) $(OBJS_MPE2TS) $(OBJS_DVBIPMPEG2TS)
+	rm -f ts2na na2ts na2ni ni2http edi2eti eti2zmq fedi2eti ni2out mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts
 
 clean: cleanapps
 	if [ -f ./libshout-2.2.2/src/.libs/libshout.a ]; then cd libshout-2.2.2; make clean; cd ..;  fi;
@@ -93,3 +97,4 @@ install:
 	install -m 755 mpe2aac $(DESTDIR)/usr/bin
 	install -m 755 mpe2mpa $(DESTDIR)/usr/bin
 	install -m 755 mpe2ts $(DESTDIR)/usr/bin
+	install -m 755 dvb-ip-mpe2ts $(DESTDIR)/usr/bin
