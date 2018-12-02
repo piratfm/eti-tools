@@ -297,6 +297,9 @@ void processSection(unsigned int pid, unsigned long dest_ip, unsigned int dest_p
 		}
 
 	}
+
+	free(ip_dest_add);
+
 	return;
 }
 
@@ -403,7 +406,7 @@ int main (int argc, char **argv){
 			unsigned int pusi_af_offset;
 			unsigned int pusi_offset;
 			unsigned int payload_bytes=0;
-			unsigned long current_csrc;
+			unsigned long current_csrc=0;
 			unsigned int start_pos;
 			unsigned int dat_slen;
 			unsigned int dat_len;
