@@ -211,12 +211,10 @@ Please note that you need `eti-tools` from June 2018 or later for EDI.
 
 The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 
-Note: The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream.
-
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
-Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | -- | -- | -3
-WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | -- | -- | -3
+Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | 8192 | -- | -3
+WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
 BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
 D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
 SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
@@ -225,31 +223,34 @@ SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 RAI DAB+ | Italy | 5.0°W | 11013V | 30000 3/5 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
 TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | -- | 0 
 
-Note: TRT DAB+ is already an NI stream! There is no need to use `na2ni` in this case!
+Notes: TRT DAB+ is already an NI stream! There is no need to use `na2ni` in this case! For Bundesmux and WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream.
   
 
 ### DAB-Ensembles working with eti-tools
 
 The format is EDI. 
 
-All of them are from Germany and can be found on7.0ºE, 12572V, Symbol rate 7940, FEC 2/3 in QPSK/DVB-S2 with PID 101|
+All of them are from Germany and can be found on 7.0ºE, 12572V, Symbol rate 10215, FEC 2/3 in QPSK/DVB-S2 with PID 101.
 
 Ensemble | IP-Address:Port
 -- | --
 SWR BW S (Baden Württemberg South, 8A and 8D) | 239.132.1.50:5004
+SWR BW N (Baden Württemberg North, 9D) | 239.132.1.51:5004
+Rheinland-Pfalz (11A) | 239.132.1.52:5004
 Oberfranken (10B)  | 239.16.242.11:60011
 Unterfranken (10A) | 239.16.242.13:60013
 Bayern (11D) | 239.16.242.17:60017
 Niederbayern (7D) | 239.16.242.16:60016
 Obb/Schw (Oberbayern and Schwaben, 10A) | 239.16.242.15:60015
 hr radio Hessen (7B) | 239.192.254.200:10000
+
   
 
 ### DAB-Ensembles (currently) not working
 
-The format might be EDI, the reception is limited to only a few DVB-cards, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
+The format might be EDI, the reception is limited to only a few DVB-cards or professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
-They are from Norway on 1.0ºW, 10719V, 4800 3/4 in DVB-S2/MIS=171 DVB-GSE 
+They are from Norway on 1.0ºW, 10719V, SR 4800, FEC 3/4 in DVB-S2/MIS=171 DVB-GSE 
 
 Ensemble|
 --|
@@ -291,7 +292,7 @@ Please consider to add `-D x` (which stands for DiSEqC) if you have more than on
 
 If you also have installed the fork https://github.com/satdreamgr/eti-tools then you can hear the German EDI streams even without setting up a DVB network connection with the new tool `fedi2eti`:
 
-    dvbstream -f 12572000 -s 7940 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
+    dvbstream -f 12572000 -s 10215 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
