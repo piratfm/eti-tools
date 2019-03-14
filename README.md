@@ -284,7 +284,7 @@ If you want to listen to one of these feeds, here's a guide how to do it (see be
     
 for UK's SDL National Mux or
 
-    dvbstream -f 12734000 -s 16751 1010 -p V -o | tsniv2ni 1010
+    dvbstream -f 12223000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2http --list
     
 for the Greek Mux.
 
