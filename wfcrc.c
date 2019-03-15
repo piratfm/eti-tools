@@ -18,7 +18,7 @@
   You should have received a copy of the GNU General Public License
   along with OpenDAB.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ni2http.h"
+//#include "ni2http.h"
 
 /* G(x) = x^16 + x^12 + x^5 + 1 */
 

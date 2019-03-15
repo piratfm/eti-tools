@@ -243,7 +243,6 @@ Bayern (11D) | 239.16.242.17:60017
 Niederbayern (7D) | 239.16.242.16:60016
 Obb/Schw (Oberbayern and Schwaben, 10A) | 239.16.242.15:60015
 hr radio Hessen (7B) | 239.192.254.200:10000
-
   
 
 ### DAB-Ensembles (currently) not working
