@@ -30,6 +30,12 @@ Prerequisitions
 
 Additional libraries which are needed:
 
+* git
+
+  For Debian (incl. Ubuntu and derivates)
+  
+      sudo apt-get install git
+
 * cmake (needed for libfec)
 
   For Debian (incl. Ubuntu and derivates)
