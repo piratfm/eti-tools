@@ -273,7 +273,7 @@ The format is ETI-NA(V.11)
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID 
 -- | -- | -- | -- | -- | -- | -- 
-ERT DAB | Greece | 39ºE | 12223H | 13380 3/4 | QPSK/DVB-S2 | 1010
+ERT DAB | Greece | 39ºE | 12242H | 13380 3/4 | QPSK/DVB-S2 | 1010
 DAB Italia | Italy | 5ºW | 12690V | 29950 3/4 | 8PSK/DVB-S2 | 4105 
 EuroDAB Italia | Italy | 5ºW | 12690V | 29950 3/4 | 8PSK/DVB-S2 | 4106 
 
