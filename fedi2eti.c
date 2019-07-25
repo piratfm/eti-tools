@@ -301,7 +301,7 @@ void callback(mpegts_psi_t *psi)
     uint32_t dip;
 
     /* skip unknown ip or port */
-    if (!inet_pton (AF_INET, dbuf, &dip) == 1) return;
+    if (inet_pton (AF_INET, dbuf, &dip) != 1) return;
     if (dip != psi->ip) return;
     if (dst_port != psi->port) return;
 
@@ -329,7 +329,7 @@ int main(int argc, const char *argv[])
 
     pid = atoi(argv[1]);
 
-    if (!inet_pton (AF_INET, argv[2], &ip) == 1)
+    if (inet_pton (AF_INET, argv[2], &ip) != 1)
     {
         fprintf(stderr, "invalid ip: %s\n", argv[2]);
         exit(EXIT_FAILURE);
