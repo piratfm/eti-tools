@@ -260,13 +260,14 @@ hr radio Hessen (7B) | 239.192.254.200:10000
 
 The format might be EDI, the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
-They are from Norway on 1.0ºW, 10719V, SR 4800, FEC 3/4 in DVB-S2/MIS=171 DVB-GSE 
+They are from Norway on 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
 
 Ensemble|
 --|
-NRK Reg2 BuTeVe |
+NRK Reg1 OsloVik |
+NRK Reg2 VeTeVik |
 NRK Reg3 SørRog |
-NRK Reg4 HoSoFj |
+NRK Reg4 Vest |
 NRK Reg5 Innland |
 NRK Reg6 TrøMøRo |
 NRK Reg7 NoTrFi | 
