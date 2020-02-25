@@ -17,8 +17,10 @@ Table of Content
   * [ts2na](#ts2na)
   * [na2ni](#eti-na2ni)
   * [edi2eti](#eti-edi2eti)
+  * [fedi2eti](#eti-fedi2eti)
+  * [mpe2ts, mpe2aac, mpe2mpa](#mpe2ts-mpe2aac-mpe2mpa)
   * [eti2zmq](#eti-eti2zmq)
-  * [ni2http](#eti-ni2http)
+  * [ni2http](#eti-ni2http-and-ni2out)
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
   * [Guide](#guide)
     * [dvbstream](#dvbstream)
@@ -128,6 +130,23 @@ Sample of receiving multicast stream and convert it to ZeroMQ:
 Sample of receiving multicast stream and save it to file:
 
     ./edi2eti -o "out.eti"  232.20.10.1:12000
+    
+ETI fedi2eti
+----------------
+**fedi2eti** is similar to edi2eti (see above), but it reads the input from a recorded transport stream file or stream and does not require a dvbnet connection.
+
+    usage: [input from file or stream] | ./fedi2eti 101 239.16.242.17 60017 | [output to dablin or ODR-DabMux]
+
+If you want to input from a recorded file (for instance with the PID 101 from the German EDI transponder) use
+
+    cat foo.ts
+
+mpe2ts, mpe2aac, mpe2mpa
+------------------------
+
+These are small tools to extract UDP radio streams via satellite. 
+
+     usage: [input from file or stream] | ./mpe2aac [PID] [IP] [Port] | [output to e.g. vlc or mplayer] 
 
 ETI eti2zmq
 ----------------
@@ -143,10 +162,10 @@ Sample of playing "kbs.eti" file in-a-loop with pseudo-realtime streaming and ap
     ./eti2zmq -i kbs.eti -a -l -d -o "zmq+tcp://*:18982"
 
 
-ETI ni2http
-----------------
+ETI ni2http and ni2out
+----------------------
 
-**ni2http** is an ETI-NI to HTTP or ZeroMQ converter. This tool converts an eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
+**ni2http** (later renamed to **ni2out**) is an ETI-NI to HTTP or ZeroMQ converter. This tool converts an eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
 
 ETI-NI streams from terrestrial DAB(+) ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
 
@@ -221,9 +240,9 @@ Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
 Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | 8192 | -- | -3
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
-BBC DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
-D1 DAB | UK | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
-SDL NATL | UK  | 4.5ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
+BBC DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
+D1 DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
+SDL NATL | UK  | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 RAI DAB+ | Italy | 5.0°W | 11013V | 30000 3/5 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
@@ -297,13 +316,13 @@ If you want to listen to one of these feeds, here's a guide how to do it (see be
     
 for UK's SDL National Mux or
 
-    dvbstream -f 12223000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2http --list
+    dvbstream -f 12242000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2http --list
     
 for the Greek Mux.
 
 Please consider to add `-D x` (which stands for DiSEqC) if you have more than one LNB.
 
-If you also have installed the fork https://github.com/satdreamgr/eti-tools then you can hear the German EDI streams even without setting up a DVB network connection with the new tool `fedi2eti`:
+You can hear the German EDI streams even without setting up a DVB network connection with `fedi2eti`:
 
     dvbstream -f 12572000 -s 10215 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
 
@@ -312,15 +331,15 @@ for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalr
 ### Alternative
 
 - **Source**: You need to _capture_ the feed with a SAT tuner. Our recomendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer on your network (not only the one with the SAT tuner).
-  - If your SAT tuner is a SAT>IP server, then you can use this URI for getting an MPEG-TS with the three DAB bitstreams present in the MUX of 4.5ºE:
+  - If your SAT tuner is a SAT>IP server, then you can use this URI for getting an MPEG-TS with the three DAB bitstreams present in the MUX of 4.9ºE:
     - `satip://server:554/?src=1&freq=12303&pol=h&msys=dvbs&mtype=qpsk&sr=25546&fec=78 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
 - **Unpacking**: You need to _process_ the multicast stream to obtain the ETI DAB ensemble. You can do this on any computer on your network. The input must be the MPEG-TS and the output will be the ETI-NI bitstream. You can save it in a file, FIFO or PIPE. Required tools: `SOCAT`, `ts2na` & `na2ni`.
 - **Play**: Finally you need to _reproduce_ the DAB ensemble. You can use any DAB player with ETI-NI input support (for example DABlin).
 
 Here an "all-in-one" example:
 
-- **Producer**: Using the DVBlast tool in a computer with a DVB-S tuner, for streaming all three DAB ensembles from 4.5ºE in 12303-H, to the multicast address udp://@239.1.1.1:1234 from the source address 192.168.1.33 (IP of this computer):
+- **Producer**: Using the DVBlast tool in a computer with a DVB-S tuner, for streaming all three DAB ensembles from 4.9ºE in 12303-H, to the multicast address udp://@239.1.1.10:1234 from the source address 192.168.1.33 (IP of this computer):
   - `dvblast -f 12303000 -s 25546000 -v 18 -S 1 -d "239.1.1.10:5018@192.168.1.33/udp 1 0 0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
-- **Consumer**: Use DABlin to consume the MPEG-TS from udp://@239.1.1.1:1234 and tune the ensemble "BBC DAB" at pid 1061:
+- **Consumer**: Use DABlin to consume the MPEG-TS from udp://@239.1.1.10:1234 and tune the ensemble "BBC DAB" at pid 1061:
   - `socat UDP4-RECV:5018,bind=239.1.1.10,ip-add-membership=239.1.1.10:eth0,reuseaddr - | ts2na -p 1061 -s 12 | na2ni | dablin -p`
 
