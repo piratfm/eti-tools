@@ -31,7 +31,7 @@ LDFLAGS += -lm
 #LDFLAGS+= -lfec
 
 
-all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts
+all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts eti2zmq
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -98,3 +98,4 @@ install:
 	install -m 755 mpe2mpa $(DESTDIR)/usr/bin
 	install -m 755 mpe2ts $(DESTDIR)/usr/bin
 	install -m 755 dvb-ip-mpe2ts $(DESTDIR)/usr/bin
+	install -m 755 eti2zmq $(DESTDIR)/usr/bin
