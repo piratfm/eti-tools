@@ -20,7 +20,7 @@ Table of Content
   * [fedi2eti](#eti-fedi2eti)
   * [mpe2ts, mpe2aac, mpe2mpa](#mpe2ts-mpe2aac-mpe2mpa)
   * [eti2zmq](#eti-eti2zmq)
-  * [ni2http](#eti-ni2http-and-ni2out)
+  * [ni2out](#eti-ni2out)
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
   * [Guide](#guide)
     * [dvbstream](#dvbstream)
@@ -59,7 +59,7 @@ Additional libraries which are needed:
        
       rm -rf *
 
-* [libshout](http://www.icecast.org/download.php) - for NI-to-HTTP converter (included in this package library is modified to support aac and raw streaming).
+* [libshout](http://www.icecast.org/download.php) - for ni2out converter (included in this package library is modified to support aac and raw streaming).
   
   For Debian (incl. Ubuntu and derivates)
 
@@ -67,7 +67,12 @@ Additional libraries which are needed:
 
   and follow the instructions
 
-* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of NI-to-HTTP converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in `Makefile` if this option is needed (see below).
+* [libzmq](http://zeromq.org) - optional: for ZeroMQ output of ni2out-converter (possible re-mux of ETI-streams containing DAB/DAB+ streams). Uncomment it in `Makefile` if this option is needed (see below).
+
+  For Debian (incl. Ubuntu and derivates)
+
+      sudo apt-get install libzmq3-dev
+
 
 Installation
 ----------------
@@ -75,7 +80,7 @@ Installation
     git clone https://github.com/piratfm/eti-tools.git
     cd eti-tools/
 
-If you need to enable ZeroMQ (see above): Edit `Makefile` and uncomment (= remove`#` in front of) lines 23 and 24, then
+If you need to enable ZeroMQ (see above): Make sure you have installed ZeroMQ and edit `Makefile` and uncomment (= remove`#` in front of) lines 23 and 24, then
 
     make
     sudo make install
@@ -85,7 +90,7 @@ If you need to enable ZeroMQ (see above): Edit `Makefile` and uncomment (= remov
 ts2na
 ----------------
 
-**ts2na** is a MPEG-TS to ETI-NA converter for satellite DAB(+) feeds.
+**ts2na** is an MPEG-TS to ETI-NA converter for satellite DAB(+) feeds.
 
 **ts2na_dreambox.c** is a special version for Dreambox DM-500S which can be used to tune the frontend to a specific frequency. On a regular PC use [dvbstream](https://www.linuxtv.org/wiki/index.php/Dvbstream) or [MuMuDVB](https://www.linuxtv.org/wiki/index.php/Mumudvb) application to dump to `ts2na`.
 
@@ -99,7 +104,7 @@ try one of these (currently in Europe used) values for `offset`: 0, 12 or -3.
 
 Default for `pid` is 1062. Values for `pid` can be any other PID carrying an ETI-NA stream (e.g. 1061). In case of negative offset (`-s -3`, see above) this `pid` argument will be ignored as the DVB-S stream itself is no valid transport stream.
 
-The output stream will be raw PID content = ETI-NA (G.704). The parameter [-s offset] must be seen in a MPEG-TS dump, in most cases that is unused 0xFF at the beginning of the each TS-packet's payload.
+The output stream will be raw PID content = ETI-NA (G.704). The parameter [-s offset] must be seen in an MPEG-TS dump, in most cases that is unused 0xFF at the beginning of the each TS-packet's payload.
 
 
 ETI na2ni
@@ -117,7 +122,7 @@ ETI edi2eti
 
 **edi2eti** is an EDI-AF or EDI-PF to ETI-NI converter. This tool automatically detects the AF/PF packet type. Maximal deinterleaving depth is set to 192ms in order to prevent high memory usage. It also extracts an ETI-LI content of the stream and encapsulate it into ETI-NI frames.
 
-The tool is able to receive multicast data and save the converted stream into an ETI-file or publish it by ZeroMQ protcol. It is written to convert microwave links (WiFi or raw packet stream) to tcp-zeromq stream useable by [EasyDABv2 module](http://tipok.org.ua/node/46). It can also be used for satellite feeds on Eutelsat 7° East.
+The tool is able to receive multicast data and save the converted stream into an ETI-file or publish it by ZeroMQ protcol. It is written to convert microwave links (WiFi or raw packet stream) to tcp-ZeroMQ stream useable by [EasyDABv2 module](http://tipok.org.ua/node/46). It can also be used for satellite feeds on Eutelsat 7° East.
 
     usage: ./edi2eti [-o <outputfile|zeromq-uri>] [ip:port]
 
@@ -162,16 +167,16 @@ Sample of playing "kbs.eti" file in-a-loop with pseudo-realtime streaming and ap
     ./eti2zmq -i kbs.eti -a -l -d -o "zmq+tcp://*:18982"
 
 
-ETI ni2http and ni2out
+ETI ni2out
 ----------------------
 
-**ni2http** (later renamed to **ni2out**) is an ETI-NI to HTTP or ZeroMQ converter. This tool converts an eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
+**ni2out** (formerly called **ni2http**) is an ETI-NI to HTTP or ZeroMQ converter. This tool converts an eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
 
 ETI-NI streams from terrestrial DAB(+) ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
 
-    usage: ./ni2http [--list] [--delay] [-i <inputfile>] [-c <config_file>] [-s <SID>]
+    usage: ./ni2out [--list] [--delay] [-i <inputfile>] [-s <SID>]
 
-Use `--list` option to find SIDs and station names inside the ETI stream. If you wish to write the stream to stdout, then use `ni2http --sid <SID>`. In this case the config_file isn't needed.
+Use `--list` option to find SIDs and station names inside the ETI stream. If you wish to write the stream to stdout, then use `ni2out --sid <SID>`. In this case the config_file isn't needed.
 The `--delay` option has to be used for offline-relaying (from the file, not from the stream). So in that case the application will wait 24ms after each ETI frame in order to make pseudo-realtime streaming.
 
 The application is also able to parse FIC for auto-detecting of station name and X-PAD of DAB and DAB+ for setting current DLS (song titles).
@@ -222,7 +227,7 @@ In `[channel]` sections at least service ID of the channel must be presented.
 
 If you wish to write the stream to a file, then use `file` to specify its location. If streaming to Icecast2 server is needed, then specify mount-point on the icecast server.
 
-If you wish to re-stream to ODR-DabMUX then set the destination of the ZeroMQ URI to muxing server. To get a list of audio service IDs, use `ni2http --list -i <inputfile>`
+If you wish to re-stream to ODR-DabMUX then set the destination of the ZeroMQ URI to muxing server. To get a list of audio service IDs, use `ni2out --list -i <inputfile>`
 
 
 Satellite DAB(+) feeds
@@ -312,11 +317,11 @@ If you want to listen to one of these feeds, here's a guide how to do it (see be
 
 ### dvbstream 
 
-    dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2http --list
+    dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2out --list
     
 for UK's SDL National Mux or
 
-    dvbstream -f 12242000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2http --list
+    dvbstream -f 12242000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2out --list
     
 for the Greek Mux.
 
