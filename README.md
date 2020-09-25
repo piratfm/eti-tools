@@ -286,7 +286,7 @@ hr radio Hessen (7B) | 239.192.254.200:10000
 
 The format might be EDI, the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
-They are from Norway on 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
+1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
 
 Ensemble|
 --|
@@ -298,6 +298,12 @@ NRK Reg5 Innland |
 NRK Reg6 TrøMøRo |
 NRK Reg7 NoTrFi | 
 
+23.5°E, 12668V, SR 1500, FEC 2/3 in DVB-S2/8PSK, MIS=1 DVB-GSE
+
+Ensemble|
+--|
+Bundesmux |
+Bundesmux 2 |
 
 ### Ensembles working with tsniv2ni
 
