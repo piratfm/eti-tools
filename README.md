@@ -267,7 +267,7 @@ Notes:
 
 The format is EDI. 
 
-All of them are from Germany and can be found on 7.0ºE, 12572V, Symbol rate 10215, FEC 2/3 in QPSK/DVB-S2 with PID 101.
+All of them are from Germany and can be found on 7.0ºE, 12569V, Symbol rate 14746, FEC 2/3 in QPSK/DVB-S2 with PID 101.
 
 Ensemble | IP-Address:Port
 -- | --
@@ -276,11 +276,14 @@ SWR BW N (Baden Württemberg North, 9D) | 239.132.1.51:5004
 Rheinland-Pfalz (11A) | 239.132.1.52:5004
 Oberfranken (10B)  | 239.16.242.11:60011
 Unterfranken (10A) | 239.16.242.13:60013
-Bayern (11D) | 239.16.242.17:60017
+Oberpfalz (6C) | 239.16.242.14:60014
 Niederbayern (7D) | 239.16.242.16:60016
+Bayern (11D) | 239.16.242.17:60017
 Obb/Schw (Oberbayern and Schwaben, 10A) | 239.16.242.15:60015
 hr radio Hessen (7B) | 239.192.254.200:10000
-  
+NDR NDS HAN (Niedersachsen, Hannover, 7D) | 239.229.96.38:50000
+NDR NDS BS (Niedersachsen, Braunschweig 11B) | 239.229.96.42:50000
+NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
 
 ### DAB-Ensembles (currently) not working
 
