@@ -243,7 +243,6 @@ The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
-Bundesmux 5C | Germany | 23.5ºE | 12641V | 1342 5/6 | QPSK/DVB-S | 8192 | -- | -3
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
 BBC DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
 D1 DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
@@ -258,7 +257,7 @@ TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | -- | 0
 Notes: 
 
 - TRT DAB+ is already an NI stream! There is no need to use `na2ni` in this case! 
-- For Bundesmux and WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. 
+- For WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. 
 - The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream. 
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
   
@@ -267,7 +266,8 @@ Notes:
 
 The format is EDI. 
 
-All of them are from Germany and can be found on 7.0ºE, 12569V, Symbol rate 14746, FEC 2/3 in QPSK/DVB-S2 with PID 101.
+#### Germany ####
+7.0ºE, 12569V, Symbol rate 14746, FEC 2/3 in QPSK/DVB-S2 with PID 101.
 
 Ensemble | IP-Address:Port
 -- | --
@@ -289,6 +289,7 @@ NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
 
 The format might be EDI, the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
 
+#### Norway ####
 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
 
 Ensemble|
@@ -301,7 +302,8 @@ NRK Reg5 Innland |
 NRK Reg6 TrøMøRo |
 NRK Reg7 NoTrFi | 
 
-23.5°E, 12668V, SR 1500, FEC 2/3 in DVB-S2/8PSK, MIS=1 DVB-GSE
+#### Germany ####
+23.5°E, 12641V, SR 1500, FEC 2/3 in DVB-S2/8PSK, MIS=1 DVB-GSE
 
 Ensemble|
 --|
