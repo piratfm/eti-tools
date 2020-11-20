@@ -307,10 +307,10 @@ Riks (12D) | 239.199.2.8:1234
 #### Germany ####
 23.5°E, 12641V, SR 1500, FEC 2/3 in DVB-S2/8PSK, multistream, DVB-GSE
 
-Ensemble| MIS
---|--
-Bundesmux | MIS 1
-Bundesmux 2 | MIS 2
+Ensemble| MIS | IP-Address:Port
+--|--|--
+Bundesmux | MIS 1 | 239.128.43.43:50043
+Bundesmux 2 | MIS 2 | 239.128.72.10:50010
 
 ### Ensembles working with tsniv2ni
 
