@@ -287,28 +287,30 @@ NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
 
 ### DAB-Ensembles (currently) not working
 
-The format might be EDI, the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse).
+The format is EDI, but the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). Alternatively, an SDR Tool (dvb-s_gui_amsat.zip) under Windows, can also process it.
 
 #### Norway ####
 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
 
-Ensemble|
---|
-NRK Reg1 OsloVik |
-NRK Reg2 VeTeVik |
-NRK Reg3 SørRog |
-NRK Reg4 Vest |
-NRK Reg5 Innland |
-NRK Reg6 TrøMøRo |
-NRK Reg7 NoTrFi | 
+Ensemble|IP-Address:Port
+--|--
+NRK Reg1 OsloVik | 239.199.2.1:1234
+NRK Reg2 VeTeVik | 239.199.2.2:1234
+NRK Reg3 SørRog | 239.199.2.3:1234
+NRK Reg4 Vest | 239.199.2.4:1234
+NRK Reg5 Innland | 239.199.2.5:1234
+NRK Reg6 TrøMøRo | 239.199.2.6:1234
+NRK Reg7 NoTrFi | 239.199.2.7:1234
+Riks (12D) | 239.199.2.8:1234
+
 
 #### Germany ####
-23.5°E, 12641V, SR 1500, FEC 2/3 in DVB-S2/8PSK, MIS=1 DVB-GSE
+23.5°E, 12641V, SR 1500, FEC 2/3 in DVB-S2/8PSK, multistream, DVB-GSE
 
-Ensemble|
---|
-Bundesmux |
-Bundesmux 2 |
+Ensemble| MIS
+--|--
+Bundesmux | MIS 1
+Bundesmux 2 | MIS 2
 
 ### Ensembles working with tsniv2ni
 
