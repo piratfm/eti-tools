@@ -345,6 +345,22 @@ You can hear the German EDI streams even without setting up a DVB network connec
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
+### dvblast ###
+
+    dvblast -s 5400000 -v 13 -f 10720000 -m psk_8 -3 -a 0 -1 171 -u > /tmp/nrk.ts
+
+for the NRK Transponder using a suitable card (like Cine V7A or TBS6903x)
+
+### tune-s2 and dvbstream ###
+
+    tune-s2 10720 V 5400 -system DVB-S2 -modulation 8PSK -fec 3/4 -lnb UNIVERSAL -mis 171
+    
+and in a second console  
+
+    dvbstream -o 8192 > /tmp/nrk.ts
+    
+for the NRK transponder.
+
 ### Alternative
 
 - **Source**: You need to _capture_ the feed with a SAT tuner. Our recomendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer on your network (not only the one with the SAT tuner).
