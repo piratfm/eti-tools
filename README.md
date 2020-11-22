@@ -18,6 +18,7 @@ Table of Content
   * [na2ni](#eti-na2ni)
   * [edi2eti](#eti-edi2eti)
   * [fedi2eti](#eti-fedi2eti)
+  * [bbfedi2eti](#eti-bbfedi2eti)
   * [mpe2ts, mpe2aac, mpe2mpa](#mpe2ts-mpe2aac-mpe2mpa)
   * [eti2zmq](#eti-eti2zmq)
   * [ni2out](#eti-ni2out)
@@ -145,6 +146,16 @@ ETI fedi2eti
 If you want to input from a recorded file (for instance with the PID 101 from the German EDI transponder) use
 
     cat foo.ts
+
+ETI bbfedi2eti
+----------------
+**bbfedi2eti** is similar to edi2eti (see above), but it reads the input from a recorded baseband stream or stream (each bbframe starting with an added 0xB8 byte) that contain GSE UDP ipv4 data.
+
+    usage: [input from file or stream] | ./bbfedi2eti -dst-ip 239.199.2.8 -dst-port 60017 | [output to dablin or ODR-DabMux]
+
+If you want to input from a recorded file use
+
+    cat foo.bbf
 
 mpe2ts, mpe2aac, mpe2mpa
 ------------------------
