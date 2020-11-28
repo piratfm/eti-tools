@@ -285,9 +285,15 @@ NDR NDS HAN (Niedersachsen, Hannover, 7D) | 239.229.96.38:50000
 NDR NDS BS (Niedersachsen, Braunschweig 11B) | 239.229.96.42:50000
 NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
 
-### DAB-Ensembles (currently) not working
+### DAB-Ensembles in DVB-GSE
 
-The format is EDI, but the reception is limited to professional equipment, as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). Alternatively, an SDR Tool (dvb-s_gui_amsat.zip) under Windows, can also process it.
+The format is EDI, but the reception is limited to very few (professional) equipment containing a STiD135 chip, like TBS 6903-X (with patched TBS driver) or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). 
+
+Note: For TBS 6903-X you need to tune the signal in Linux as the Windows driver is buggy.
+
+All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream.
+
+For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools and **bbfedi2eti** from the fork https://github.com/newspaperman/eti-tools
 
 #### Norway ####
 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
