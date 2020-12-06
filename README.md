@@ -85,7 +85,13 @@ If you need to enable ZeroMQ (see above): Make sure you have installed ZeroMQ an
     make
     sudo make install
 
+In case you get this error 
 
+> error while loading shared libraries: libfec.so.3
+
+then refresh the library cache:
+
+    sudo ldconfig
 
 ts2na
 ----------------
