@@ -297,9 +297,19 @@ The format is EDI, but the reception is limited to very few (professional) equip
 
 Note: For TBS 6903-X you need to tune the signal in Linux as the Windows driver is buggy.
 
-All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream.
+| :warning: All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream. |
+| --- |
 
 For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools and **bbfedi2eti** from the fork https://github.com/newspaperman/eti-tools
+
+:information_source: Remark: This solution is still not perfect. You might get
+
+```
+EnsembleSource: reading ETI from 'stdin'
+EnsembleSource: EOF reached!
+```
+
+right at the start, so please try it several times till it works.
 
 #### Norway ####
 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
@@ -323,6 +333,14 @@ Ensemble| MIS | IP-Address:Port
 --|--|--
 Bundesmux | MIS 1 | 239.128.43.43:50043
 Bundesmux 2 | MIS 2 | 239.128.72.10:50010
+
+:information_source: Hint: If you get regular error like that
+
+`[date and time] EDI: Unknown TAG Fptt`
+
+on Bundesmux 2, then you can avoid this by redirecting the output to the null device:
+
+`bbfedi2eti -dst-ip 239.128.72.10 -dst-port 50010 2> /dev/null | dablin_gtk`
 
 ### Ensembles working with tsniv2ni
 
