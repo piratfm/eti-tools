@@ -250,9 +250,7 @@ The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
-BBC DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1061 | 70 | 12
-D1 DAB | UK | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1062 | 60 | 12
-SDL NATL | UK  | 4.9ºE | 12303H | 25546 7/8 | QPSK/DVB-S | 1063 | 80 | 12
+BBC DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1061 | ? | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
@@ -266,6 +264,7 @@ Notes:
 - For WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. 
 - The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream. 
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
+- The UK streams on 4.8E have been switched off by 1st of Jan 2021
   
 
 ### DAB-Ensembles working with eti-tools
