@@ -176,64 +176,16 @@ Sample of playing "kbs.eti" file in-a-loop with pseudo-realtime streaming and ap
 ETI ni2out
 ----------------------
 
-**ni2out** (formerly called **ni2http**) is an ETI-NI to HTTP or ZeroMQ converter. This tool converts an eti-stream to mp2 resp. AAC and relays it to icecast2 or ODR-DabMUX server.
+**ni2out** (formerly called **ni2http**) is an ETI-NI converter. This tool converts an eti-stream to mp2 resp. AAC.
 
 ETI-NI streams from terrestrial DAB(+) ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
 
     usage: ./ni2out [--list] [--delay] [-i <inputfile>] [-s <SID>]
 
-Use `--list` option to find SIDs and station names inside the ETI stream. If you wish to write the stream to stdout, then use `ni2out --sid <SID>`. In this case the config_file isn't needed.
+Use `--list` option to find SIDs and station names inside the ETI stream. If you wish to write the stream to stdout, then use `ni2out --sid <SID>`. 
 The `--delay` option has to be used for offline-relaying (from the file, not from the stream). So in that case the application will wait 24ms after each ETI frame in order to make pseudo-realtime streaming.
 
-The application is also able to parse FIC for auto-detecting of station name and X-PAD of DAB and DAB+ for setting current DLS (song titles).
-
-Config sample:
-
-    [server]
-    host:       localhost
-    port:       8000
-    user:       source
-    password:   hackme
-    
-    [channel]
-    mount:      r5_live
-    sid:        0xc228
-    
-    [channel]
-    name:       Custom channel name2
-    mount:      r1
-    sid:        0xc221
-    
-    [channel]
-    #stream name will be auto-detected
-    #name:       Custom channel name3
-    mount:      r6music
-    sid:        0xc22b
-    # extract_pad - use DLS info as icecast metadata, enabled by default
-    extract_pad: 1
-    #extract_dabplus - converts DAB+ stream into AAC-ADTS,
-    #which is playable by the internet-radio players, enabled by default
-    #If this option is disabled, this stream can be directly passed to ODR-DabMod
-    extract_dabplus: 1
-    
-    [channel]
-    # just write to file, no streaming to server.
-    sid:        0xc223
-    extract_pad: 0
-    file:       /run/station7.fifo
-
-    [channel]
-    # pass DAB/DAB+ stream to ODR-DabMUX.
-    sid:        0xc224
-    extract_pad: 0
-    zmq:       tcp://127.0.0.1:9001
-
-In `[server]` section the parameters of Icecast2 server must be set.
-In `[channel]` sections at least service ID of the channel must be presented.
-
-If you wish to write the stream to a file, then use `file` to specify its location. If streaming to Icecast2 server is needed, then specify mount-point on the icecast server.
-
-If you wish to re-stream to ODR-DabMUX then set the destination of the ZeroMQ URI to muxing server. To get a list of audio service IDs, use `ni2out --list -i <inputfile>`
+To get a list of audio service IDs, use `ni2out --list -i <inputfile>`
 
 
 Satellite DAB(+) feeds
