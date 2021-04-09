@@ -306,8 +306,15 @@ void callback(mpegts_psi_t *psi)
     }
 
     /* when aac located successfully */
-    if (len_udp > 8)
-        fwrite(payload, 1, len_udp, stdout);
+    if (len_udp > 8) {
+        /* get AAC frame length as reported by the ADTS packet itself */
+        int aac_frame_len = ((payload[3] & 0x3) << 11) | ((payload[4] << 3) | (payload[5] >> 5));
+
+        /* Only output AAC frames with matching length in ADTS packet to avoid FFMPEG errors */
+        if (len_udp == aac_frame_len) {
+            fwrite(payload, 1, len_udp, stdout);
+        }
+    }
 
 }
 
