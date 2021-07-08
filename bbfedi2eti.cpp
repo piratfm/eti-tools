@@ -64,7 +64,7 @@ using namespace std;
 
 istream* inbuf;
 ostream* outbuf;
-char indata[7268];
+char indata[8100];
 int active=0;
 unsigned char** fragmentor;
 unsigned int fragmentorLength[256];
@@ -117,16 +117,15 @@ bool processBBframe(unsigned char* payload, unsigned int gseLength)
 				fragID=payload[2];
 				unsigned int length=(payload[3]<<8) | payload[4];
 				if(fragmentor[fragID]!=0)
-					delete fragmentor[fragID];
+					delete [] fragmentor[fragID];
 				fragmentor[fragID]=new unsigned char[length+2];
-				fragmentorLength[fragID]=length;
-				fragmentorPos[fragID]=0;
+				fragmentorLength[fragID]=length+2;
 				fragmentor[fragID][0]=payload[0];
 				fragmentor[fragID][1]=payload[1];
 				//SET START=1 STOP=1
 				fragmentor[fragID][0]|=0xC0;
 				memcpy(&fragmentor[fragID][2], &payload[5], gseLength-3);
-				fragmentorPos[fragID]+=gseLength-1;
+				fragmentorPos[fragID]=gseLength-1;
 			}
 			//START=0 STOP=0
 			else if((payload[0]&0xC0)==0x00) {
@@ -141,10 +140,10 @@ bool processBBframe(unsigned char* payload, unsigned int gseLength)
 				fragID=payload[2];
 				if(fragmentor[fragID]==0)
 					return true;
-				memcpy(&fragmentor[fragID][fragmentorPos[fragID]], &payload[3], gseLength-1);
+				memcpy(&fragmentor[fragID][fragmentorPos[fragID]], &payload[3], gseLength-5);
 				fragmentorPos[fragID]+=gseLength-1;
 				processBBframe(fragmentor[fragID],fragmentorLength[fragID]);
-				delete fragmentor[fragID];
+				delete [] fragmentor[fragID];
 				fragmentor[fragID]=0;
 
 			}
