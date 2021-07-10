@@ -322,19 +322,19 @@ If you want to listen to one of these feeds, here's a guide how to do it (see be
 
 ### dvbstream 
 
-    dvbstream -f 12303000 -s 25546 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2out --list
+    dvbstream -f 12092000 -s 27500 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2out --list
     
-for UK's SDL National Mux or
+for UK's SDL National Mux on 9°E or
 
     dvbstream -f 12242000 -s 13380 1010 -p H -o | tsniv2ni 1010 | ni2out --list
     
-for the Greek Mux.
+for the Greek Mux on 39°E.
 
 Please consider to add `-D x` (which stands for DiSEqC) if you have more than one LNB.
 
 You can hear the German EDI streams even without setting up a DVB network connection with `fedi2eti`:
 
-    dvbstream -f 12572000 -s 10215 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
+    dvbstream -f 12567000 -s 17015 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
