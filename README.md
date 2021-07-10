@@ -224,7 +224,7 @@ Notes:
 The format is EDI. 
 
 #### Germany ####
-7.0ºE, 12569V, Symbol rate 14746, FEC 2/3 in QPSK/DVB-S2 with PID 101.
+7.0ºE, 12567V, Symbol rate 17015, FEC 2/3 in QPSK/DVB-S2 with PID 101 (in total 15 ensembles)
 
 Ensemble | IP-Address:Port
 -- | --
@@ -241,6 +241,18 @@ hr radio Hessen (7B) | 239.192.254.200:10000
 NDR NDS HAN (Niedersachsen, Hannover, 7D) | 239.229.96.38:50000
 NDR NDS BS (Niedersachsen, Braunschweig 11B) | 239.229.96.42:50000
 NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
+Allgäu (8B) | 239.128.57.20:50020
+Voralpen (7A) | 239.128.58.20:50020
+
+Please note that Voralpenmux does **not** work at the moment due a bug in the software.
+
+:information_source: Hint: If you get regular error like that
+
+`[date and time] EDI: Unknown TAG Fptt`
+
+on Allgäumux, then you can avoid this by redirecting the output to the null device:
+
+`fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
 
 ### DAB-Ensembles in DVB-GSE
 
