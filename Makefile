@@ -107,3 +107,4 @@ install:
 	install -m 755 mpe2ts $(DESTDIR)/usr/bin
 	install -m 755 dvb-ip-mpe2ts $(DESTDIR)/usr/bin
 	install -m 755 eti2zmq $(DESTDIR)/usr/bin
+	install -m 755 bbfedi2eti $(DESTDIR)/usr/bin
