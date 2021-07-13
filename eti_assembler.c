@@ -54,7 +54,7 @@ int AssembleETIFrame(struct etiBuilder *h, int fmt, callback_t outCallback, void
 
 
 
-    eti[0] = h->m_err;
+    eti[0] = 0xff;
     uint8_t fct = h->m_fc.dflc % 250;
 
     // FSYNC
