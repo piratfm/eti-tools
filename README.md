@@ -179,9 +179,9 @@ ETI eti2zmq
 
 The input stream must be 6144-bytes aligned raw ETI-NI.
 
-Sample of playing "kbs.eti" file in-a-loop with pseudo-realtime streaming and app's activity indication:
+Sample of playing "foo.eti" file in-a-loop with pseudo-realtime streaming and app's activity indication:
 
-    ./eti2zmq -i kbs.eti -a -l -d -o "zmq+tcp://*:18982"
+    ./eti2zmq -i foo.eti -a -l -d -o "zmq+tcp://*:18982"
 
 
 ETI ni2out
@@ -227,7 +227,7 @@ Notes:
 - For WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. 
 - The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream. 
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
-- The UK streams on 4.8E have been switched off by 1st of Jan 2021
+- The UK streams on 4.8E have been switched off by 1st of Jan 2021.
   
 
 ### DAB-Ensembles working with eti-tools
@@ -235,7 +235,9 @@ Notes:
 The format is EDI. 
 
 #### Germany ####
-7.0ºE, 12567V, Symbol rate 17015, FEC 2/3 in QPSK/DVB-S2 with PID 101 (in total 15 ensembles)
+7.0ºE, 12567V, Symbol rate 17015, FEC 2/3 in QPSK/DVB-S2 with PID 101 (which contains 15 ensembles in total).
+
+Remark: The symbol rate and the frequency has changed over the past months after adding additional muxes.
 
 Ensemble | IP-Address:Port
 -- | --
@@ -255,35 +257,24 @@ NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
 Allgäu (8B) | 239.128.57.20:50020
 Voralpen (7A) | 239.128.58.20:50020
 
-Please note that Voralpenmux does **not** work at the moment due a bug in the software.
-
 :information_source: Hint: If you get regular error like that
 
 `[date and time] EDI: Unknown TAG Fptt`
 
-on Allgäumux, then you can avoid this by redirecting the output to the null device:
+on Allgäumux or Voralpenmux, then you can avoid this by redirecting the output to the null device:
 
 `fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
 
 ### DAB-Ensembles in DVB-GSE
 
-The format is EDI, but the reception is limited to very few (professional) equipment containing a STiD135 chip, like TBS 6903-X (with patched TBS driver) or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). 
+The format is EDI, but the reception is limited to very few (professional) equipment containing an STiD135 chip, like TBS 6903-X or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). 
 
 Note: For TBS 6903-X you need to tune the signal in Linux as the Windows driver is buggy.
 
 | :warning: All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream. |
 | --- |
 
-For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools and **bbfedi2eti** from the fork https://github.com/newspaperman/eti-tools
-
-:information_source: Remark: This solution is still not perfect. You might get
-
-```
-EnsembleSource: reading ETI from 'stdin'
-EnsembleSource: EOF reached!
-```
-
-right at the start, so please try it several times till it works.
+For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
 
 #### Norway ####
 1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
@@ -333,7 +324,7 @@ If you want to listen to one of these feeds, here's a guide how to do it (see be
 
 ### dvbstream 
 
-    dvbstream -f 12092000 -s 27500 8192 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2out --list
+    dvbstream -f 12092000 -s 27500 1063 -p H -o | ts2na -s 12 -p 1063 | na2ni | ni2out --list
     
 for UK's SDL National Mux on 9°E or
 
@@ -345,7 +336,7 @@ Please consider to add `-D x` (which stands for DiSEqC) if you have more than on
 
 You can hear the German EDI streams even without setting up a DVB network connection with `fedi2eti`:
 
-    dvbstream -f 12567000 -s 17015 8192 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
+    dvbstream -f 12567000 -s 17015 101 -p V -o | fedi2eti 101 239.16.242.17 60017 | dablin_gtk
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
