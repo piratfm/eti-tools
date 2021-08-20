@@ -25,10 +25,11 @@ Table of Content
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
   * [Guide](#guide)
     * [dvbstream](#dvbstream)
-    * [Sat>IP](#alternative)
     * [dvblast](#dvblast)
     * [tune-s2 and dvbstream](#tune-s2-and-dvbstream)
     * [tsduck](#tsduck)
+
+    * [Sat>IP](#alternative) (unmaintained)
 
 
 Prerequisitions
@@ -361,9 +362,11 @@ for the NRK transponder.
 
 ### tsduck
 
-    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 11013000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk 
+    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 11013000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | dd if=/dev/stdin skip=1880 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk
 
-for the multistream transponder of RAI using Adapter 2 and piping to `dablin_gtk`
+for the multistream transponder of RAI using Adapter 2 and piping to `dablin_gtk`. 
+
+Remark: The first 10 TS frames (10 x 188 bytes = 1880 bytes) are skipped in this example as the header might be corrupt otherwise.
 
 ### Alternative
 
