@@ -26,6 +26,9 @@ Table of Content
   * [Guide](#guide)
     * [dvbstream](#dvbstream)
     * [Sat>IP](#alternative)
+    * [dvblast](#dvblast)
+    * [tune-s2 and dvbstream](#tune-s2-and-dvbstream)
+    * [tsduck](#tsduck)
 
 
 Prerequisitions
@@ -340,13 +343,13 @@ You can hear the German EDI streams even without setting up a DVB network connec
 
 for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalradio/dablin).
 
-### dvblast ###
+### dvblast
 
     dvblast -s 5400000 -v 13 -f 10720000 -m psk_8 -3 -a 0 -1 171 -u > /tmp/nrk.ts
 
 for the NRK Transponder using a suitable card (like Cine V7A or TBS6903x)
 
-### tune-s2 and dvbstream ###
+### tune-s2 and dvbstream
 
     tune-s2 10720 V 5400 -system DVB-S2 -modulation 8PSK -fec 3/4 -lnb UNIVERSAL -mis 171
     
@@ -355,6 +358,12 @@ and in a second console
     dvbstream -o 8192 > /tmp/nrk.ts
     
 for the NRK transponder.
+
+### tsduck
+
+    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 11013000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk 
+
+for the multistream transponder of RAI using Adapter 2 and piping to `dablin_gtk`
 
 ### Alternative
 
