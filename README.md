@@ -179,7 +179,7 @@ ETI eti2zmq
 
 **eti2zmq** is an ETI-NI to ZeroMQ converter. This tool plays a ETI-file and publishes it as server, just like [ODR-DabMux](https://github.com/Opendigitalradio/ODR-DabMux). It simulates pseudo-realtime streaming by adding a proper delay between sent frames. It also allows to play files in a loop.
 
-    usage: ./eti2zmq [-i <input-file.eti>]-o <zeromq-uri>
+    usage: ./eti2zmq [-i <input-file.eti>] -o <zeromq-uri>
 
 The input stream must be 6144-bytes aligned raw ETI-NI.
 
