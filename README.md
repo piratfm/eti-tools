@@ -222,7 +222,6 @@ D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
 North Yorkshire | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1065 | 1215 | 0
-Teesside | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1064 | 1210 | 0
 SDL NATL | UK  | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1063 | 1170 | 12
 RAI DAB+ | Italy | 5.0°W | 11013V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
 TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | -- | 0 
@@ -277,10 +276,9 @@ on Allgäumux or Voralpenmux, then you can avoid this by redirecting the output 
 
 Ensemble | IP-Address:Port
 -- | --
-towerCast-m1 | 239.0.1.11:5001
-towerCast-m2 | 239.0.1.12:5002
+Métropolitain 1 | 239.0.1.11:5001
+Métropolitain 2 | 239.0.1.12:5002
 
-Remark: These are tests only at the moment. The frequency, the IP-Addresses or the PId might change.
 
 ### DAB-Ensembles in DVB-GSE
 
