@@ -13,6 +13,7 @@ Table of Content
 
 * [Prerequisitions](#prerequisitions)
 * [Installation](#installation)
+
 * Tools
   * [ts2na](#ts2na)
   * [na2ni](#eti-na2ni)
@@ -22,13 +23,14 @@ Table of Content
   * [mpe2ts, mpe2aac, mpe2mpa](#mpe2ts-mpe2aac-mpe2mpa)
   * [eti2zmq](#eti-eti2zmq)
   * [ni2out](#eti-ni2out)
+
 * [Satellite DAB(+) feeds](#satellite-dab-feeds)
-  * [Guide](#guide)
+
+* [Guide](#guide)
     * [dvbstream](#dvbstream)
     * [dvblast](#dvblast)
     * [tune-s2 and dvbstream](#tune-s2-and-dvbstream)
     * [tsduck](#tsduck)
-
     * [Sat>IP](#alternative) (unmaintained)
 
 
@@ -405,16 +407,31 @@ Remark: The first TS frame (188 bytes) is skipped in this example as the header 
 
 ### Alternative
 
-- **Source**: You need to _capture_ the feed with a SAT tuner. Our recomendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer on your network (not only the one with the SAT tuner).
-  - If your SAT tuner is a SAT>IP server, then you can use this URI for getting an MPEG-TS with the three DAB bitstreams present in the MUX of 4.9ºE:
-    - `satip://server:554/?src=1&freq=12303&pol=h&msys=dvbs&mtype=qpsk&sr=25546&fec=78 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
-- **Unpacking**: You need to _process_ the multicast stream to obtain the ETI DAB ensemble. You can do this on any computer on your network. The input must be the MPEG-TS and the output will be the ETI-NI bitstream. You can save it in a file, FIFO or PIPE. Required tools: `SOCAT`, `ts2na` & `na2ni`.
-- **Play**: Finally you need to _reproduce_ the DAB ensemble. You can use any DAB player with ETI-NI input support (for example DABlin).
+#### SAT>IP ####
+
+You need to _capture_ the feed with a SAT tuner. Our recommendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer in your network (not only the one with the SAT tuner).
+
+If your SAT tuner is a SAT>IP server, then use this URI for getting an MPEG-TS with the three DAB bitstreams present on 9ºE:
+
+```
+satip://server:554/?src=1&freq=12092&pol=h&msys=dvbs&mtype=8psk&sr=27500&fec=34 &pids=0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"
+```
 
 Here an "all-in-one" example:
 
-- **Producer**: Using the DVBlast tool in a computer with a DVB-S tuner, for streaming all three DAB ensembles from 4.9ºE in 12303-H, to the multicast address udp://@239.1.1.10:1234 from the source address 192.168.1.33 (IP of this computer):
-  - `dvblast -f 12303000 -s 25546000 -v 18 -S 1 -d "239.1.1.10:5018@192.168.1.33/udp 1 0 0,1,16,17,18,20,1061,1062,1063,5060,5070,5080"`
-- **Consumer**: Use DABlin to consume the MPEG-TS from udp://@239.1.1.10:1234 and tune the ensemble "BBC DAB" at pid 1061:
-  - `socat UDP4-RECV:5018,bind=239.1.1.10,ip-add-membership=239.1.1.10:eth0,reuseaddr - | ts2na -p 1061 -s 12 | na2ni | dablin -p`
+#### Server ####
+
+Using the DVBlast tool in a computer with a DVB-S2 tuner, for streaming all three DAB ensembles from 9ºE in 12303-H, to the multicast address udp://@239.1.1.10:1234 from the source address 192.168.1.33 (IP of this computer):
+
+```
+dvblast -f 12092000 -s 27500000 -v 18 -5 DVBS2 -S 1 -m psk_8 -d "239.1.1.10:5018@192.168.1.33/udp 1 0 0,1,16,17,18,20,1062,1063,1065,5060,5070,5080"
+```
+
+#### Client #### 
+
+Use DABlin to consume the MPEG-TS from udp://@239.1.1.10:1234 and tune the ensemble "D1 DAB" at pid 1062:
+
+```
+socat UDP4-RECV:5018,bind=239.1.1.10,ip-add-membership=239.1.1.10:eth0,reuseaddr - | ts2na -p 1062 -s 12 | na2ni | dablin_gtk
+```
 
