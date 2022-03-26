@@ -272,12 +272,20 @@ on Allgäumux or Voralpenmux, then you can avoid this by redirecting the output 
 
 #### France ####
 
-5°W, 11461H Symbol rate 5780 FEC 2/3 in QPSK/DVB-S2 with PID 301 (which contains both national ensembles starting in October 2021)
+5°W, 11461H Symbol rate 5780 FEC 2/3 in QPSK/DVB-S2 with PID 301
 
 Ensemble | IP-Address:Port
 -- | --
 Métropolitain 1 | 239.0.1.11:5001
 Métropolitain 2 | 239.0.1.12:5002
+
+#### UK ####
+
+10°E, 11221V Symbol rate 30000 FEC 5/6 in QPSK/DVB-S2 with PID 701
+
+Ensemble | IP-Address:Port
+-- | --
+Salisbury | 239.232.1.201:4000
 
 
 ### DAB-Ensembles in DVB-GSE
