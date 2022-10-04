@@ -219,6 +219,7 @@ The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
 WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
+WDR 11D | Germany | 23.5ºE | 12632V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
 BBC DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1061 | 10580 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
 SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
