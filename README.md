@@ -337,6 +337,7 @@ Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID
 -- | -- | -- | -- | -- | -- | -- 
 ERT DAB | Greece | 39ºE | 12242H | 13380 3/4 | QPSK/DVB-S2 | 1010
 DAB Italia | Italy | 9ºE | 11727V | 30000 3/4 | 8PSK/DVB-S2 | 7031 
+DAB Italia | Italy | 9ºE | 11727V | 30000 3/4 | 8PSK/DVB-S2 | 777
 EuroDAB Italia | Italy | 9ºE | 11727V | 30000 3/4 | 8PSK/DVB-S2 | 7131 
 EuroDAB Italia | Italy | 9ºE | 11727V | 30000 3/4 | 8PSK/DVB-S2 | 1025 
 
