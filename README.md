@@ -226,9 +226,11 @@ SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
 SDL NATL | UK  | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1063 | 1170 | 12
 RAI DAB+ | Italy | 5.0°W | 11013V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
+TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | -- | 0 
 
 Notes: 
 
+- TRT DAB+ is already an NI stream! There is no need to use `na2ni` in this case! 
 - For WDR you need to stream/save the complete transponder (PID 8192) as they don't have a transport stream. 
 - The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream and higher SR. 
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
