@@ -247,19 +247,19 @@ Remark: The symbol rate and the frequency has changed over the past months after
 
 Ensemble | IP-Address:Port
 -- | --
-SWR BW S (Baden Württemberg South, 8A and 8D) | 239.132.1.50:5004
-SWR BW N (Baden Württemberg North, 9D) | 239.132.1.51:5004
+SWR Baden-Württemberg South (8A & 8D) | 239.132.1.50:5004
+SWR Baden-Württemberg North (9D) | 239.132.1.51:5004
 Rheinland-Pfalz (11A) | 239.132.1.52:5004
 Oberfranken (10B)  | 239.16.242.11:60011
 Unterfranken (10A) | 239.16.242.13:60013
 Oberpfalz (6C) | 239.16.242.14:60014
 Niederbayern (7D) | 239.16.242.16:60016
 Bayern (11D) | 239.16.242.17:60017
-Obb/Schw (Oberbayern and Schwaben, 10A) | 239.16.242.15:60015
+Oberbayern & Schwaben (10A) | 239.16.242.15:60015
 hr radio Hessen (7B) | 239.192.254.200:10000
-NDR NDS HAN (Niedersachsen, Hannover, 7D) | 239.229.96.38:50000
-NDR NDS BS (Niedersachsen, Braunschweig 11B) | 239.229.96.42:50000
-NDR MV SN (Mecklenburg-Vorpommern, Schwerin 12B) | 239.229.96.43:50000
+NDR Schleswig-Holstein, Kiel (9C) | 239.229.96.33:50000
+NDR Niedersachsen, Braunschweig (11B) | 239.229.96.42:50000
+NDR Mecklenburg-Vorpommern, Schwerin (12B) | 239.229.96.43:50000
 Allgäu-Donau-Iller (8B) | 239.128.57.20:50020
 Oberbayern South (7A) | 239.128.58.20:50020
 
@@ -267,7 +267,11 @@ Oberbayern South (7A) | 239.128.58.20:50020
 
 `[date and time] EDI: Unknown TAG Fptt`
 
-on Allgäu-Donau-Iller-Mux or Oberbayern-South-Mux, then you can avoid this by redirecting the output to the null device:
+or 
+
+`[date and time] EDI: Unknown TAG avtm`
+
+on some multiplexes, then you can avoid this by redirecting the output to the null device, for example:
 
 `fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
 
