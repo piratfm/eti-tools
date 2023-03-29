@@ -290,7 +290,7 @@ Métropolitain 2 | 239.0.1.12:5002
 
 Ensemble | IP-Address:Port
 -- | --
-Salisbury | 239.232.1.201:4000
+Salisbury | 239.232.1.201:2048
 
 
 ### DAB-Ensembles in DVB-GSE
