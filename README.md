@@ -218,7 +218,6 @@ The format is MPEG-TS, which you have to convert into ETI-NA and then to ETI-NI.
 
 Ensemble | Country | Sat | Freq | SR/FEC | Modulation | PID | SID | Offset
 -- | -- | -- | -- | -- | -- | -- | -- | -- 
-WDR 11D | Germany | 23.5ºE | 12645V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
 WDR 11D | Germany | 23.5ºE | 12632V | 1489 3/4 | QPSK/DVB-S | 8192 | -- | -3
 BBC DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1061 | 10580 | 12
 D1 DAB | UK | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1062 | 10585 | 12
@@ -240,10 +239,9 @@ Notes:
 
 The format is EDI. 
 
-#### Germany ####
-7.0ºE, 12567V, Symbol rate 17015, FEC 2/3 in QPSK/DVB-S2 with PID 101 (which contains 15 ensembles in total).
+#### Germany 7.0°E ####
 
-Remark: The symbol rate and the frequency has changed over the past months after adding additional muxes.
+7.0°E 12567V, Symbol rate 17015, FEC 2/3 in QPSK/DVB-S2 with PID 101 (which contains 15 ensembles in total).
 
 Ensemble | IP-Address:Port
 -- | --
@@ -274,6 +272,16 @@ or
 on some multiplexes, then you can avoid this by redirecting the output to the null device, for example:
 
 `fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
+
+
+#### Germany 23.5°E ####
+
+23.5°E 12645V Symbol rate 2200 FEC 3/4 in QPSK/DVB-S with PID 3000
+
+Ensemble | IP-Address:Port
+-- | --
+WDR 11D | 228.10.1.5:10010
+WDR 9A | 228.10.2.5:10010
 
 #### France ####
 
