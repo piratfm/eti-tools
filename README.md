@@ -303,7 +303,7 @@ Salisbury | 239.232.1.201:2048
 
 ### DAB-Ensembles in DVB-GSE
 
-The format is EDI, but the reception is limited to very few (professional) equipment containing an STiD135 chip, like TBS 6903-X or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://www.dvb.org/standards/dvb-gse). 
+The format is EDI, but the reception is limited to very few (professional) equipment containing an STiD135 chip, like TBS 6903-X or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://dvb.org/?standard=generic-stream-encapsulation-gse-part-1-protocol). 
 
 Note: For TBS 6903-X you need to tune the signal in Linux as the Windows driver is buggy.
 
