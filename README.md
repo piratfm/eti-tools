@@ -225,7 +225,7 @@ SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
 D1 Scotland | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1065 | 1166 | 12
 SDL NATL | UK  | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1063 | 1170 | 12
-RAI DAB+ | Italy | 5.0°W | 11013V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
+RAI DAB+ | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
 TRT DAB+ | Turkey | 42.0E | 10953V | 1800 3/4 | QPSK/DVB-S | 1068 | -- | 0 
 
 Notes: 
@@ -275,13 +275,6 @@ on some multiplexes, then you can avoid this by redirecting the output to the nu
 
 
 #### Germany 23.5°E ####
-
-23.5°E 12645V Symbol rate 2200 FEC 3/4 in QPSK/DVB-S with PID 3000
-
-Ensemble | IP-Address:Port
--- | --
-WDR 11D | 228.10.1.5:10010
-WDR 9A | 228.10.2.5:10010
 
 19.2°E 11604V Symbol rate 2200 FEC 3/4 in QPSK/DVB-S with PID 3000
 
