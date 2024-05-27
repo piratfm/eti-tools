@@ -274,7 +274,7 @@ on some multiplexes, then you can avoid this by redirecting the output to the nu
 `fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
 
 
-#### Germany 23.5°E ####
+#### Germany ####
 
 19.2°E 11604V Symbol rate 2200 FEC 3/4 in QPSK/DVB-S with PID 3000
 
