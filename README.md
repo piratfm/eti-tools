@@ -283,6 +283,14 @@ Ensemble | IP-Address:Port
 WDR 11D | 228.10.1.5:10010
 WDR 9A | 228.10.2.5:10010
 
+23.5°E 12168V Symbol rate 27500 FEC 3/4 in QPSK/DVB-S with PIDs 4121 and 4222
+
+Ensemble | IP-Address:Port | PID
+-- | -- | --
+Bundesmux 1 |  239.128.43.43:50043 | 4121
+Bundesmux 2 |  239.128.72.10:50010 | 4122
+
+
 #### France ####
 
 5°W, 11461H Symbol rate 5780 FEC 2/3 in QPSK/DVB-S2 with PID 301
@@ -332,7 +340,7 @@ Riks (12D) | 239.199.2.8:1234
 
 Ensemble| MIS | IP-Address:Port
 --|--|--
-Bundesmux | MIS 1 | 239.128.43.43:50043
+Bundesmux 1 | MIS 1 | 239.128.43.43:50043
 Bundesmux 2 | MIS 2 | 239.128.72.10:50010
 
 :information_source: Hint: If you get regular error like that
