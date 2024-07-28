@@ -317,7 +317,7 @@ added options stid135 bbframe=1
 For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
 
 #### Norway ####
-1.0ºW, 10720V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
+1.0ºW, 10717V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
 
 Ensemble|IP-Address:Port
 --|--
