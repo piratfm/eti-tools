@@ -385,7 +385,7 @@ for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalr
 
 for the NRK Transponder using a suitable card (like Cine V7A or TBS6903x) and save the output into a file.
 
-    dvblast -s 35291000 -v 13 -f 11013000 -m psk_8 -3 -a 0 --multistream-id-is-id 11 -u --multistream-id-pls-mode GOLD --multistream-id-pls-code 131070 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk -L
+    dvblast -s 35291000 -v 13 -f 12564000 -m psk_8 -3 -a 0 --multistream-id-is-id 11 -u --multistream-id-pls-mode GOLD --multistream-id-pls-code 131070 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk -L
 
 for the multistream transponder of RAI using Adapter 0 and piping to `dablin_gtk` with option `-L`. 
 
@@ -393,7 +393,7 @@ Remark: The first TS frame (188 bytes) is skipped in this example as the header 
 
 ### tune-s2 and dvbstream
 
-    tune-s2 10720 V 5400 -system DVB-S2 -modulation 8PSK -fec 3/4 -lnb UNIVERSAL -mis 171
+    tune-s2 10717 V 5400 -system DVB-S2 -modulation 8PSK -fec 3/4 -lnb UNIVERSAL -mis 171
     
 and in a second console  
 
@@ -413,7 +413,7 @@ to tune to the French transponder on 5°W, then stream PID 301, extract one DAB 
 
 ### tsduck
 
-    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 11013000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk
+    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 12564000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk
 
 for the multistream transponder of RAI on 5°W using Adapter 2 and listen in `dablin_gtk`. 
 
