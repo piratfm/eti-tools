@@ -39,11 +39,11 @@ Prerequisitions
 
 Additional libraries which are needed:
 
-* git
+* git and g++
 
   For Debian (incl. Ubuntu and derivates)
   
-      sudo apt-get install git
+      sudo apt-get install git g++
 
 * cmake (needed for libfec)
 
