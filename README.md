@@ -281,6 +281,23 @@ Ensemble | IP-Address:Port
 WDR 11D | 228.10.1.5:10010
 WDR 9A | 228.10.2.5:10010
 
+#### Germany ####
+23.5°E, 12168V, SR 27500, FEC 2/3 in DVB-S/QPSK with two different PIDs
+
+Ensemble | PID | IP-Address:Port
+--|--|--
+Bundesmux 1 | 4121 | 239.128.43.43:50043
+Bundesmux 2 | 4122 | 239.128.72.10:50010
+
+:information_source: Hint: If you get regular error like that
+
+`[date and time] EDI: Unknown TAG Fptt`
+
+on Bundesmux 2, then you can avoid this by redirecting the output to the null device:
+
+`> /dev/null`
+
+
 #### France ####
 
 5°W, 11461H Symbol rate 5780 FEC 2/3 in QPSK/DVB-S2 with PID 301
@@ -328,22 +345,6 @@ NRK Reg6 TrøMøRo | 239.199.2.6:1234
 NRK Reg7 NoTrFi | 239.199.2.7:1234
 Riks (12D) | 239.199.2.8:1234
 
-
-#### Germany ####
-23.5°E, 12641V, SR 1500, FEC 2/3 in DVB-S2/8PSK, multistream, DVB-GSE
-
-Ensemble| MIS | IP-Address:Port
---|--|--
-Bundesmux 1 | MIS 1 | 239.128.43.43:50043
-Bundesmux 2 | MIS 2 | 239.128.72.10:50010
-
-:information_source: Hint: If you get regular error like that
-
-`[date and time] EDI: Unknown TAG Fptt`
-
-on Bundesmux 2, then you can avoid this by redirecting the output to the null device:
-
-`bbfedi2eti -dst-ip 239.128.72.10 -dst-port 50010 2> /dev/null | dablin_gtk`
 
 ### Ensembles working with tsniv2ni
 
