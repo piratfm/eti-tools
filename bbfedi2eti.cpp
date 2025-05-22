@@ -245,7 +245,7 @@ int main(int argc, char** argv) {
 
                switch (c) {
                case 0:
-                   fprintf(stderr,"option %s", long_options[option_index].name);
+                   fprintf(stderr,"option %s\n", long_options[option_index].name);
 		   if(option_index==0) //src-ip
 		   {
 			   has_src_ip=true;
