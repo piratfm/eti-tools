@@ -436,9 +436,18 @@ Remark: The first TS frame (188 bytes) is skipped in this example as the header 
 
 ### Alternative
 
+#### Tuning under Windows
+
+In Crazyscan just lock to the transponder and stream via TCP into your network (the port does not matter, just use 6969 as default) or localhost.
+
+On Linux (separate Laptop or same PC) capture the port with `nc` (Netcat) and process it. If you are using Ubuntu WSL on the same machine you just can use dablin, so the option `-1` will play the first audio stream.
+
+     nc [IP-ADDRESS] 6969 | pts2bbf | bbfedi2eti -dst-ip 239.199.2.1 -mis 171 | dablin -1
+
+
 #### SAT>IP ####
 
-You need to _capture_ the feed with a SAT tuner. Our recommendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer in your network (not only the one with the SAT tuner).
+You need to capture the feed with a SAT tuner. Our recommendation is to use one of them to stream the feed to a multicast address. Then you can use this stream from any computer in your network (not only the one with the SAT tuner).
 
 If your SAT tuner is a SAT>IP server, then use this URI for getting an MPEG-TS with the three DAB bitstreams present on 9ºE:
 
