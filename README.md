@@ -392,14 +392,19 @@ Remark: The first TS frame (188 bytes) is skipped in this example as the header 
 
 ### tune-s2 and dvbstream
 
+The fork https://github.com/mrwish7/tune-s2 is recommended, as it also works with MIS, PLS (only Gold) as well as Usals.
+
+#### tune-s2 for GSE    
+    
+for the NRK transponder and save its output to a file.
+
     tune-s2 10717 V 5400 -system DVB-S2 -modulation 8PSK -fec 3/4 -lnb UNIVERSAL -mis 171
     
 and in a second console  
 
     dvbstream -o 8192 > /tmp/nrk.ts
     
-for the NRK transponder and save its output to a file.
-
+#### tune-s2 for MPE
 
     tune-s2 11461 H 5780 -fec 2/3 -modulation QPSK S2 -lnb UNIVERSAL
     
@@ -408,7 +413,18 @@ and in a second console
     dvbstream -o 301 | fedi2eti 301 239.0.1.11 5001 | dablin_gtk 
     
 to tune to the French transponder on 5°W, then stream PID 301, extract one DAB mux (which is in UDP) with `fedi2eti` and listen to it in `dablin_gtk`.
+
+#### tune-s2 for MIS
+
+Note that you need the fork https://github.com/mrwish7/tune-s2 for Multistream Transponders. Otherwise use `tsp` from tsduck or `dvblast`.
     
+    tune-s2 12564 V 35300 -lnb UNIVERSAL -system DVB-S2 -mis 11 -pls 131070
+
+and in a second console
+
+    dvbstream -o 1000 | ts2na -p 1000 -s 0 | na2ni | ni2out --list
+
+for the RAI DAB package on 5°W.
 
 ### tsduck
 
