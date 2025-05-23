@@ -434,6 +434,43 @@ for the multistream transponder of RAI on 5°W using Adapter 2 and listen in `da
 
 Remark: The first TS frame (188 bytes) is skipped in this example as the header might be corrupt otherwise.
 
+### digris-edi-udp-converter
+
+For MPE and for GSE DAB muxes you can also use **digris-edi-udp-converter**, see https://github.com/digris/digris-edi-zmq-bridge
+
+#### Example for GSE (NRK):
+
+Only possible with suitable card, see above! First tune via `tune-s2`, in a second console type (please note, the output needs to be RTP, not UDP):
+
+    dvbstream 8192 -i 127.0.0.1 -r 5000
+
+In a third console type (mind the letter G for GSE)
+
+    digris-edi-udp-converter -m 127.0.0.1 -p 5000 -T 8901 -G 171:239.199.2.1:1234
+
+And in a fourth console type
+
+    nc 127.0.0.1 8901 | dablin_gtk -f edi -L
+
+And you will listen to NRK Reg 1 Mux.
+
+#### Example for MPE
+
+Assuming you want to listen to Métropolitain 1 on 5°W. First tune via `tune-s2`, in a second console type (please note, the output needs to be UDP):
+
+    dvbstream 8192 -i 127.0.0.1 -r 5000 -udp
+
+In a third console type (mind the letter F):
+
+    digris-edi-udp-converter -m 127.0.0.1 -p 5000 -T 8901 -F 301:239.0.1.11:5001
+
+In a forth console type    
+
+    nc 127.0.0.1 8901 | dablin_gtk -f edi -L
+
+Please note: MPE deframing does not expect an RTP header.
+
+
 ### Alternative
 
 #### Tuning under Windows
