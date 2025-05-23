@@ -470,6 +470,11 @@ In a forth console type
 
 Please note: MPE deframing does not expect an RTP header.
 
+### Usals
+
+If you have a DiSEqC compatible rotor, then you also can use https://github.com/l2mrroberto/usals to move your dish. If you don't want to insert longitude and latitude each time, simply add the coordinates (the example is for Munich) as alias to `~/.bashrc`: 
+
+    alias usals='usals -G 11.57 -A 48.13'
 
 ### Alternative
 
