@@ -329,7 +329,13 @@ options stid135 bbframe=1
 | :warning: All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream. |
 | --- |
 
-For processing you need **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
+Note, you will need at least one of the below mentioned tools:
+
+Method A: **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
+or
+Method B: **digris-edi-udp-converter** from https://github.com/digris/digris-edi-zmq-bridge/ 
+
+See syntax below.
 
 #### Norway ####
 1.0ºW, 10717V, SR 5400, FEC 3/4 in DVB-S2/8PSK, MIS=171 DVB-GSE 
