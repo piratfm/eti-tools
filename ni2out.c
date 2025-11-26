@@ -978,7 +978,8 @@ int main(int i_argc, char **ppsz_argv)
 				channels[ch]->bitrate = s_data->pa->bitrate;
 				channels[ch]->is_dabplus = s_data->pa->dabplus;
 				if(channels[ch]->name[0] == '\0')
-					strncpy(channels[ch]->name, s_data->label, sizeof(s_data->label));
+//					strncpy(channels[ch]->name, s_data->label, sizeof(s_data->label));  // code will result in a compiling error
+                    strncpy(channels[ch]->name, s_data->label, sizeof(channels[ch]->name));
 
 				sstc_t sstc;
 				int idx_found = 0;

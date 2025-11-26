@@ -173,7 +173,8 @@ int AssembleETIFrame(struct etiBuilder *h, int fmt, callback_t outCallback, void
     	idx=6144;
     }
 
-    if(outCallback)
+    if(outCallback) {
     	outCallback(priv_data, eti, idx);
+    }
 	return 1;
 }

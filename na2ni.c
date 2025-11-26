@@ -510,9 +510,9 @@ sync_again:
     //print_bytes((char*)eti_multiframe, E1_FRAME_LEN*frame_filling);
 
     /* move last bytes to the beginning and read whole ETI block */
-    if(not_readed)
+    if(not_readed) {
     	memmove(p_e1_search_block, read_ptr, not_readed);
-
+    }
 	while (multiframe_filling < FRAMES_IN_MULTIFRAME + FRAMES_IN_BLOCK) {
 		int i;
 
@@ -522,9 +522,9 @@ sync_again:
 			exit(1);
 		}
 
-		if(not_readed)
+		if(not_readed) {
 			not_readed=0;
-
+        }
 		read_ptr = p_e1_search_block;
 
 		// at zero cycle - read frame

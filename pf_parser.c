@@ -93,10 +93,10 @@ int HandlePFPacket(edi_handler_t *h, uint8_t *edi_pkt, size_t pktsize)
         index += h->pf._Plen;
     }
 
-    if (verbosity > 4)
+    if (verbosity > 4) {
     	msg_Log("EDI-PF: _Pseq:%u, _Findex:%u, _Fcount:%u, _FEC:%u _Addr:%u, _Plen:%u, _RSk:%u, _RSz:%u, _Source:%u, _Dest:%u, _valid:%u, len:%lu",
 			h->pf._Pseq, h->pf._Findex, h->pf._Fcount, h->pf._FEC, h->pf._Addr, h->pf._Plen, h->pf._RSk, h->pf._RSz, h->pf._Source, h->pf._Dest, h->pf._valid, index);
-
+    }
 	return index;
 }
 

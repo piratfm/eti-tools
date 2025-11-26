@@ -227,6 +227,7 @@ int main(int argc, char** argv) {
 
            while (1) {
                int this_option_optind = optind ? optind : 1;
+               (void)this_option_optind;
                int option_index = 0;
                static struct option long_options[] = {
                    {"src-ip", required_argument,     0,  0 },
@@ -308,7 +309,8 @@ int main(int argc, char** argv) {
                fprintf(stderr,"\n");
 	       exit(1);
            }
-	unsigned char active=0;
+	unsigned char active=0;    // variable never used
+    (void)active;
 	inbuf=&cin;
 	outbuf=&cout;
 	struct layer3 * mylayer=(struct layer3*) indata;
@@ -346,7 +348,7 @@ int main(int argc, char** argv) {
 		if(inbuf->fail()) break;
 		if(has_mis && (mylayer->header.MaType2 != mis)) continue;
 		//fprintf(stderr, "GSE Header:%x %x %x\n",mylayer->payload[0],mylayer->payload[1],mylayer->payload[2]);
-		int pos=0;
+		unsigned int pos=0;
 		while(pos<bblength - 4) { //last 4 bytes contain crc32
 			unsigned int gseLength=((mylayer->payload[pos]&0x0f)<<8) | (mylayer->payload[pos+1]);
 			if((mylayer->payload[pos]&0xf0)==0) break;

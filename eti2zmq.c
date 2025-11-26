@@ -160,6 +160,7 @@ void timespec_diff(const struct timespec *start, const struct timespec *stop, st
 int main(int i_argc, char **ppsz_argv)
 {   
     int c, delay=0, loop=0, cut_tail=1;
+    (void)cut_tail; // suppress unused variable warning
     FILE *inputfile=stdin;
     char *outpath = NULL;
     int activity=0;
