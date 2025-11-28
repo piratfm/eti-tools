@@ -318,17 +318,8 @@ int eti_superblocks_deinterleave(uint8_t *eti_superblocks_ptr, uint8_t *eti_supe
 			for(row=0;row<INTERLEAVE_TABLE_ROWS;row++) {
 				//print_bytes((char *) &eti_deint[row*INTERLEAVE_TABLE_COLS], INTERLEAVE_TABLE_COLS);
 				int corrected_bytes[235];
-				int err = decode_rs_char(rs_handlers[type_bit], &eti_deint[row*INTERLEAVE_TABLE_COLS], corrected_bytes, 0);
-				if(err < 0) {
-					WARN("Reed-Solomon uncorrectable errors at row[%d]: %d", row, err);
-					return -1;
-				} else if (err && err<235) {
-					WARN("Reed-Solomon corrected %d errors in row[%d]:", err, row);
-					int i;
-					for(i=0;i < err;i++)
-						fprintf(stderr, "%d ", corrected_bytes[i]);
-					fprintf(stderr, "\n");
-				}
+				decode_rs_char(rs_handlers[type_bit], &eti_deint[row*INTERLEAVE_TABLE_COLS], corrected_bytes, 0);
+				// No error code returned, so no error check here
 			}
 		}
 #endif

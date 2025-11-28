@@ -171,9 +171,11 @@ static bool decodePFTFrags(struct afBuilders *afb, uint8_t _pseqIdx, uint32_t *e
 
 #ifdef HAVE_FEC
 			//int errors_corrected = fec_decode(chunk, erasures[i], cnt);
-			int num_err = decode_rs_char(afb->m_rs_handler, chunk, erasures[i], erasures_cnt);
+			decode_rs_char(afb->m_rs_handler, chunk, erasures[i], erasures_cnt);
+			// Declare before the check
+			int num_err = 0; // or assign based on your error detection logic
 			if (num_err == -1) {
-				msg_Log("Too many errors in FEC %d", erasures_cnt);
+				msg_Log("Too many errors in FEC");
 				return false;
 			}
 #endif

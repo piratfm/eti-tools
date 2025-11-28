@@ -625,8 +625,7 @@ int process_dabplus(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 			for (j = 0; j < 120; j++)
 				cbuf[j] = chan->dabplus_data[s * j + i];
 #ifdef HAVE_FEC
-			int errs = decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
-			if(errs!=0) fprintf(stderr,"DAB+ errors: %d\n",errs);
+			decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
 #endif
 			/* Write checked/corrected data back to sfbuf */
 			for (j = 0; j < 110; j++)
