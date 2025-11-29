@@ -309,9 +309,11 @@ options stid135 bbframe=1
 
 Note, you will need at least one of the below mentioned tools:
 
-Method A: **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
+- Method A: **pts2bbf** from https://github.com/newspaperman/bbframe-tools (see Readme there) and **bbfedi2eti** from this repository.
+
 or
-Method B: **digris-edi-udp-converter** from https://github.com/digris/digris-edi-zmq-bridge/ 
+
+- Method B: **digris-edi-udp-converter** from https://github.com/digris/digris-edi-zmq-bridge/ 
 
 See syntax below.
 
