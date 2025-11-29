@@ -255,7 +255,9 @@ int fig_0_2(int figlen, int pd, int oe, int cn, unsigned char* fig)
 	struct ssid ssidp;
 	struct lsid lsidp;
 
-	short s, scmp;
+	unsigned int s;
+    unsigned int scmp;
+    s = spack(fig);
 	int f, i, j, k, sid;
 
 #if DEBUG > 2
@@ -283,6 +285,7 @@ int fig_0_2(int figlen, int pd, int oe, int cn, unsigned char* fig)
 		} else {
 			s = spack(fig);
 			memcpy(&ssidp, &s, sizeof(struct ssid));
+            
 #if DEBUG > 0
 			fprintf(stderr, "fig_0_2: short SId = %#04hx",s);
 #endif
@@ -299,7 +302,8 @@ int fig_0_2(int figlen, int pd, int oe, int cn, unsigned char* fig)
 		for (k=0; k < scmp; k++) {
 			s = spack(fig);
 			memcpy(&scdp.maup, &s, sizeof(struct mscstau));
-			/* Can this be speeded up ? */
+            
+            /* Can this be speeded up ? */
 			switch (scdp.maup.TMId) {
 			case 0:
 #if DEBUGd > 0

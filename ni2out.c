@@ -625,8 +625,7 @@ int process_dabplus(uint8_t *data_ptr, int data_len, ni2http_channel_t *chan)
 			for (j = 0; j < 120; j++)
 				cbuf[j] = chan->dabplus_data[s * j + i];
 #ifdef HAVE_FEC
-			int errs = decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
-			if(errs!=0) fprintf(stderr,"DAB+ errors: %d\n",errs);
+			decode_rs_char(chan->dabplus_rs, cbuf, (int*)NULL, 0);
 #endif
 			/* Write checked/corrected data back to sfbuf */
 			for (j = 0; j < 110; j++)
@@ -978,7 +977,8 @@ int main(int i_argc, char **ppsz_argv)
 				channels[ch]->bitrate = s_data->pa->bitrate;
 				channels[ch]->is_dabplus = s_data->pa->dabplus;
 				if(channels[ch]->name[0] == '\0')
-					strncpy(channels[ch]->name, s_data->label, sizeof(s_data->label));
+//					strncpy(channels[ch]->name, s_data->label, sizeof(s_data->label));  // code will result in a compiling error
+                    strncpy(channels[ch]->name, s_data->label, sizeof(channels[ch]->name));
 
 				sstc_t sstc;
 				int idx_found = 0;

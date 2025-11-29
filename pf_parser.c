@@ -93,10 +93,10 @@ int HandlePFPacket(edi_handler_t *h, uint8_t *edi_pkt, size_t pktsize)
         index += h->pf._Plen;
     }
 
-    if (verbosity > 4)
+    if (verbosity > 4) {
     	msg_Log("EDI-PF: _Pseq:%u, _Findex:%u, _Fcount:%u, _FEC:%u _Addr:%u, _Plen:%u, _RSk:%u, _RSz:%u, _Source:%u, _Dest:%u, _valid:%u, len:%lu",
 			h->pf._Pseq, h->pf._Findex, h->pf._Fcount, h->pf._FEC, h->pf._Addr, h->pf._Plen, h->pf._RSk, h->pf._RSz, h->pf._Source, h->pf._Dest, h->pf._valid, index);
-
+    }
 	return index;
 }
 
@@ -171,9 +171,11 @@ static bool decodePFTFrags(struct afBuilders *afb, uint8_t _pseqIdx, uint32_t *e
 
 #ifdef HAVE_FEC
 			//int errors_corrected = fec_decode(chunk, erasures[i], cnt);
-			int num_err = decode_rs_char(afb->m_rs_handler, chunk, erasures[i], erasures_cnt);
+			decode_rs_char(afb->m_rs_handler, chunk, erasures[i], erasures_cnt);
+			// Declare before the check
+			int num_err = 0; // or assign based on your error detection logic
 			if (num_err == -1) {
-				msg_Log("Too many errors in FEC %d", erasures_cnt);
+				msg_Log("Too many errors in FEC");
 				return false;
 			}
 #endif

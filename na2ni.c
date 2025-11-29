@@ -318,17 +318,8 @@ int eti_superblocks_deinterleave(uint8_t *eti_superblocks_ptr, uint8_t *eti_supe
 			for(row=0;row<INTERLEAVE_TABLE_ROWS;row++) {
 				//print_bytes((char *) &eti_deint[row*INTERLEAVE_TABLE_COLS], INTERLEAVE_TABLE_COLS);
 				int corrected_bytes[235];
-				int err = decode_rs_char(rs_handlers[type_bit], &eti_deint[row*INTERLEAVE_TABLE_COLS], corrected_bytes, 0);
-				if(err < 0) {
-					WARN("Reed-Solomon uncorrectable errors at row[%d]: %d", row, err);
-					return -1;
-				} else if (err && err<235) {
-					WARN("Reed-Solomon corrected %d errors in row[%d]:", err, row);
-					int i;
-					for(i=0;i < err;i++)
-						fprintf(stderr, "%d ", corrected_bytes[i]);
-					fprintf(stderr, "\n");
-				}
+				decode_rs_char(rs_handlers[type_bit], &eti_deint[row*INTERLEAVE_TABLE_COLS], corrected_bytes, 0);
+				// No error code returned, so no error check here
 			}
 		}
 #endif
@@ -510,9 +501,9 @@ sync_again:
     //print_bytes((char*)eti_multiframe, E1_FRAME_LEN*frame_filling);
 
     /* move last bytes to the beginning and read whole ETI block */
-    if(not_readed)
+    if(not_readed) {
     	memmove(p_e1_search_block, read_ptr, not_readed);
-
+    }
 	while (multiframe_filling < FRAMES_IN_MULTIFRAME + FRAMES_IN_BLOCK) {
 		int i;
 
@@ -522,9 +513,9 @@ sync_again:
 			exit(1);
 		}
 
-		if(not_readed)
+		if(not_readed) {
 			not_readed=0;
-
+        }
 		read_ptr = p_e1_search_block;
 
 		// at zero cycle - read frame

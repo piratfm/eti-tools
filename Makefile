@@ -33,7 +33,20 @@ LDFLAGS += -lm
 #LDFLAGS+= -lfec
 
 
-all: cleanapps ni2out ts2na na2ts na2ni edi2eti fedi2eti bbfedi2eti mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts eti2zmq
+all: check_build
+
+check_build:
+	@set -e; \
+	if $(MAKE) --no-print-directory ni2out ts2na na2ts na2ni edi2eti fedi2eti bbfedi2eti mpe2aac mpe2mpa mpe2ts dvb-ip-mpe2ts eti2zmq; then \
+		echo "======================================================"; \
+		echo "Build succeeded, you may call 'sudo make install' now"; \
+		echo "======================================================"; \
+	else \
+		echo "======================================================"; \
+		echo "ATTENTION! Build failed!"; \
+		echo "======================================================"; \
+		exit 1; \
+	fi
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -108,3 +121,5 @@ install:
 	install -m 755 dvb-ip-mpe2ts $(DESTDIR)/usr/bin
 	install -m 755 eti2zmq $(DESTDIR)/usr/bin
 	install -m 755 bbfedi2eti $(DESTDIR)/usr/bin
+
+
