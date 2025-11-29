@@ -259,19 +259,6 @@ NDR Mecklenburg-Vorpommern, Schwerin (12B) | 239.229.96.43:50000
 Allgäu-Donau-Iller (8B) | 239.128.57.20:50020
 Oberbayern South (7A) | 239.128.58.20:50020
 
-:information_source: Hint: If you get regular error like that
-
-`[date and time] EDI: Unknown TAG Fptt`
-
-or 
-
-`[date and time] EDI: Unknown TAG avtm`
-
-on some multiplexes, then you can avoid this by redirecting the output to the null device, for example:
-
-`fedi2eti 101 239.128.57.20 50020 2> /dev/null | dablin_gtk `
-
-
 #### Germany ####
 
 19.2°E 11604V Symbol rate 2200 FEC 3/4 in QPSK/DVB-S with PID 3000
@@ -288,15 +275,6 @@ Ensemble | PID | IP-Address:Port
 --|--|--
 Bundesmux 1 | 4121 | 239.128.43.43:50043
 Bundesmux 2 | 4122 | 239.128.72.10:50010
-
-:information_source: Hint: If you get regular error like that
-
-`[date and time] EDI: Unknown TAG Fptt`
-
-on Bundesmux 2, then you can avoid this by redirecting the output to the null device:
-
-`> /dev/null`
-
 
 #### France ####
 
