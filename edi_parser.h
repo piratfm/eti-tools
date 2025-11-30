@@ -106,7 +106,7 @@ struct afBuilders {
 
 struct eti_SYNC {
     uint32_t ERR:8;
-    uint32_t FSYNC:24;
+    uint32_t FSYNC_VALUE:24;
 } PACKED;
 
 struct eti_FC {
