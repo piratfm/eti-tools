@@ -172,9 +172,15 @@ If you want to input from a recorded file use
 mpe2ts, mpe2aac, mpe2mpa
 ------------------------
 
-These are small tools to extract UDP radio streams via satellite. 
+These are small tools to extract UDP/RTP radio streams via satellite. 
 
-     usage: [input from file or stream] | ./mpe2aac [PID] [IP] [Port] | [output to e.g. vlc or mplayer] 
+     Basic usage: [input from file or stream] | ./mpe2aac [PID] [IP] [Port] | [output to e.g. vlc or mplayer] 
+
+In addition, mpe2aac has RDS UECP functionality. Some of the radio stations using this format send RDS data via UECP protocol inside the header extensions of each RTP packet.
+
+An optional additional argument with `IP`:`port` can be given to re-assemble this data and forward it to any RDS encoder that is listening for UECP packets at that address (for example, StereoTool). If this option is omitted, the tool will output just the AAC audio frames as normal.
+
+     usage: [input from file or stream] | ./mpe2aac [PID] [IP] [Port] [TCP server IP:TCP server Port] | [output audio to e.g. vlc or mplayer]
 
 ETI eti2zmq
 ----------------

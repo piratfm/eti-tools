@@ -65,32 +65,46 @@ int fig_1_5(int, int, int, unsigned char*);
 /* Null function for types and extensions
    which are currently unimplemented */
 int fig_ign(int, unsigned char*);
+int fig_0_ign(int, int, int, int, unsigned char*);
+int fig_1_ign(int, int, int, unsigned char*);
 
 /* FIG type jump table: pointers to functions handling FIG types */
-int (*fig_jtab[])() = { fig_0,   fig_1, fig_ign, fig_ign,
-			fig_ign, fig_5, fig_ign, fig_ign
+int (*fig_jtab[])(int, unsigned char*) = { fig_0,   fig_1, fig_ign, fig_ign,
+					   fig_ign, fig_5, fig_ign, fig_ign
 };
 
 /* Jump table: pointers to functions handling FIG Type 0 extensions */
-int (*fig_0_jtab[])() = { fig_0_0,  fig_0_1,  fig_0_2,  fig_0_3,
-			  fig_ign,  fig_ign,  fig_ign,  fig_ign,
-			  fig_ign,  fig_ign,  fig_0_10, fig_ign,
-			  fig_ign,  fig_ign,  fig_ign,  fig_ign,
-			  fig_ign,  fig_ign,  fig_ign,  fig_ign,
-			  fig_0_20, fig_0_21, fig_ign,  fig_ign,
-			  fig_ign,  fig_ign,  fig_ign,  fig_ign,
-			  fig_ign,  fig_ign,  fig_ign,  fig_ign
+int (*fig_0_jtab[])(int, int, int, int, unsigned char*) = {
+			  fig_0_0,  fig_0_1,  fig_0_2,    fig_0_3,
+			  fig_0_ign, fig_0_ign, fig_0_ign, fig_0_ign,
+			  fig_0_ign, fig_0_ign, fig_0_10,  fig_0_ign,
+			  fig_0_ign, fig_0_ign, fig_0_ign, fig_0_ign,
+			  fig_0_ign, fig_0_ign, fig_0_ign, fig_0_ign,
+			  fig_0_20,  fig_0_21,  fig_0_ign, fig_0_ign,
+			  fig_0_ign, fig_0_ign, fig_0_ign, fig_0_ign,
+			  fig_0_ign, fig_0_ign, fig_0_ign, fig_0_ign
 };
 
 /* Jump table: pointers to functions handling FIG Type 1 extensions */
-int (*fig_1_jtab[])() = { fig_1_0, fig_1_1, fig_ign, fig_ign,
-			  fig_1_4, fig_1_5, fig_ign, fig_ign
+int (*fig_1_jtab[])(int, int, int, unsigned char*) = {
+			  fig_1_0, fig_1_1, fig_1_ign, fig_1_ign,
+			  fig_1_4, fig_1_5, fig_1_ign, fig_1_ign
 };
 
 /*
 ** Ignore this FIG - do nothing
 */
 int fig_ign(int figlen, unsigned char *fig)
+{
+	return 0;
+}
+
+int fig_0_ign(int figlen, int pd, int oe, int cn, unsigned char *fig)
+{
+	return 0;
+}
+
+int fig_1_ign(int figlen, int oe, int charset, unsigned char *fig)
 {
 	return 0;
 }

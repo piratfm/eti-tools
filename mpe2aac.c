@@ -22,6 +22,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 /*
  * mpegts/tscore.h
@@ -56,6 +58,25 @@
 #define PSI_BUFFER_GET_SIZE(_b) \
     (PSI_HEADER_SIZE + (((_b[1] & 0x0f) << 8) | _b[2]))
 
+/*
+ * UECP forwarding state
+ * Reassembles UECP frames (0xFE...0xFF) from RTP header extension chunks.
+ * Chunks are identified by a 4-byte ID at extension data bytes[20-23].
+ * Duplicate chunk IDs are skipped, and we wait for a new 0xFE after each
+ * complete frame (the final chunk is repeated until the next message starts).
+ */
+#define UECP_BUF_SIZE 4096
+
+typedef struct
+{
+    int fd;                      /* TCP socket fd, -1 = disconnected */
+    struct sockaddr_in addr;     /* forwarding destination */
+    uint8_t buf[UECP_BUF_SIZE];  /* frame assembly buffer */
+    uint16_t len;                /* bytes accumulated */
+    bool in_frame;               /* currently assembling a frame */
+    uint32_t last_chunk_id;      /* dedup: id of last accepted chunk */
+} uecp_t;
+
 typedef struct
 {
     uint8_t cc;
@@ -68,7 +89,125 @@ typedef struct
     uint16_t port;
     uint32_t ip;
     bool debug;
+    uecp_t *uecp;               /* NULL = UECP forwarding not configured */
 } mpegts_psi_t;
+
+/*
+ * UECP TCP forwarding
+ */
+
+/* MSG_NOSIGNAL not available on macOS; use SO_NOSIGPIPE at socket creation */
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
+
+static void uecp_connect(uecp_t *uecp)
+{
+    if (uecp->fd >= 0)
+        return;
+    uecp->fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (uecp->fd < 0)
+        return;
+#ifdef SO_NOSIGPIPE
+    int opt = 1;
+    setsockopt(uecp->fd, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof(opt));
+#endif
+    if (connect(uecp->fd, (struct sockaddr *)&uecp->addr, sizeof(uecp->addr)) < 0)
+    {
+        fprintf(stderr, "UECP connect failed: %s\n", strerror(errno));
+        close(uecp->fd);
+        uecp->fd = -1;
+    }
+}
+
+static void uecp_send_frame(uecp_t *uecp)
+{
+    if (uecp->fd < 0)
+        uecp_connect(uecp);
+    if (uecp->fd < 0)
+        return;
+    ssize_t n = send(uecp->fd, uecp->buf, uecp->len, MSG_NOSIGNAL);
+    if (n < 0)
+    {
+        fprintf(stderr, "UECP send failed: %s\n", strerror(errno));
+        close(uecp->fd);
+        uecp->fd = -1;
+        return;
+    }
+    /* Drain any data the server sends back — we don't use it, but if we never
+     * read it the kernel receive buffer will eventually fill and TCP flow
+     * control will stall the server's sends. */
+    uint8_t drain[256];
+    while (recv(uecp->fd, drain, sizeof(drain), MSG_DONTWAIT) > 0)
+        ;
+}
+
+/*
+ * Process one RTP extension payload.
+ * ext     - points to the raw extension data (after the 4-byte profile/length header)
+ * ext_len - length in bytes (ext_words * 4)
+ *
+ * Layout within ext (0-indexed):
+ *   [20-23] chunk ID (used for deduplication)
+ *   [25]    chunk data length in bytes
+ *   [28..]  chunk data
+ */
+static void uecp_process_ext(uecp_t *uecp, const uint8_t *ext, uint16_t ext_len, bool debug)
+{
+    /* Need header through first data byte */
+    if (ext_len < 29)
+        return;
+
+    uint32_t chunk_id = ((uint32_t)ext[20] << 24) | ((uint32_t)ext[21] << 16) |
+                        ((uint32_t)ext[22] << 8)  |  ext[23];
+    uint8_t  chunk_len = ext[25];
+    const uint8_t *chunk = ext + 28;
+
+    if (chunk_len == 0 || 28 + chunk_len > ext_len)
+        return;
+
+    if (!uecp->in_frame)
+    {
+        /* Waiting for a new frame: only accept chunks that start with 0xFE */
+        if (chunk[0] != 0xFE)
+            return;
+        uecp->len = 0;
+        uecp->in_frame = true;
+        uecp->last_chunk_id = chunk_id;
+    }
+    else
+    {
+        /* Building a frame: skip duplicate chunks */
+        if (chunk_id == uecp->last_chunk_id)
+            return;
+        uecp->last_chunk_id = chunk_id;
+    }
+
+    if (uecp->len + chunk_len > UECP_BUF_SIZE)
+    {
+        fprintf(stderr, "UECP buffer overflow, discarding frame\n");
+        uecp->in_frame = false;
+        uecp->len = 0;
+        return;
+    }
+
+    memcpy(uecp->buf + uecp->len, chunk, chunk_len);
+    uecp->len += chunk_len;
+
+    if (debug)
+        fprintf(stderr, "UECP chunk: id=0x%08x len=%u total=%u\n",
+                chunk_id, chunk_len, uecp->len);
+
+    /* 0xFF as the last byte of the chunk marks the end of the UECP frame */
+    if (chunk[chunk_len - 1] == 0xFF)
+    {
+        if (debug)
+            fprintf(stderr, "UECP frame complete: %u bytes\n", uecp->len);
+        uecp_send_frame(uecp);
+        uecp->in_frame = false;
+        uecp->len = 0;
+    }
+}
 
 /*
  * mpegts/psi.c
@@ -213,7 +352,6 @@ void callback(mpegts_psi_t *psi)
     if (psi->buffer[0] != 0x3e)
         return;
 
-    const uint8_t *ptr = psi->buffer;
     size_t len = psi->buffer_size;
 
     /* MAC address */
@@ -266,7 +404,8 @@ void callback(mpegts_psi_t *psi)
     dst_ip[2] = ip[18];
     dst_ip[3] = ip[19];
 
-    unsigned char *udp = ip + 20;
+    uint8_t ihl = (ip[0] & 0x0F) * 4;
+    unsigned char *udp = ip + ihl;
     unsigned short src_port = (udp[0] << 8) | udp[1];
     unsigned short dst_port = (udp[2] << 8) | udp[3];
     unsigned short len_udp  = (udp[4] << 8) | udp[5];
@@ -290,23 +429,76 @@ void callback(mpegts_psi_t *psi)
     if (dip != psi->ip) return;
     if (dst_port != psi->port) return;
 
-    /* skip headers: MPE + IP + UDP */
-    ptr += (12 + 20 + 8);
-    len -= (12 + 20 + 8);
-
     len_udp -= 8;
-    unsigned char *payload = udp + 8;
+    unsigned char *rtp = udp + 8;
 
-    /* try to locate aac magic mpeg2 or mpeg4 */
-    while (len_udp > 8)
+    /* Parse RTP header */
+    if (len_udp < 12)
+        return;
+
+    if ((rtp[0] >> 6) != 2)
     {
-        if (memcmp(payload, "\xFF\xF9", 2) == 0 || memcmp(payload, "\xFF\xF1", 2) == 0) break;
-        payload += 1;
-        len_udp -= 1;
+        if (psi->debug)
+            fprintf(stderr, "Not RTP (version=%d)\n", (rtp[0] >> 6));
+        return;
     }
 
-    /* when aac located successfully */
-    if (len_udp > 8)
+    uint8_t rtp_padding   = (rtp[0] >> 5) & 0x01;
+    uint8_t rtp_extension = (rtp[0] >> 4) & 0x01;
+    uint8_t rtp_cc        = rtp[0] & 0x0F;
+
+    if (psi->debug)
+    {
+        uint16_t rtp_seq = (rtp[2] << 8) | rtp[3];
+        uint32_t rtp_ts  = ((uint32_t)rtp[4] << 24) | ((uint32_t)rtp[5] << 16) |
+                           ((uint32_t)rtp[6] << 8)  | rtp[7];
+        fprintf(stderr, "RTP seq=%u ts=%u pt=%d\n", rtp_seq, rtp_ts, rtp[1] & 0x7F);
+    }
+
+    unsigned char *payload = rtp + 12;
+    len_udp -= 12;
+
+    /* skip CSRC entries */
+    uint16_t csrc_len = rtp_cc * 4;
+    if (len_udp < csrc_len)
+        return;
+    payload += csrc_len;
+    len_udp -= csrc_len;
+
+    /* skip RTP extension if present */
+    if (rtp_extension)
+    {
+        if (len_udp < 4)
+            return;
+        uint16_t ext_words = (payload[2] << 8) | payload[3];
+        uint16_t ext_total = 4 + ext_words * 4;
+        if (len_udp < ext_total)
+            return;
+
+        if (psi->uecp)
+            uecp_process_ext(psi->uecp, payload + 4, ext_words * 4, psi->debug);
+
+        payload += ext_total;
+        len_udp -= ext_total;
+    }
+
+    /* strip RTP padding if present */
+    if (rtp_padding && len_udp > 0)
+    {
+        uint8_t pad_len = payload[len_udp - 1];
+        if (pad_len > len_udp)
+            return;
+        len_udp -= pad_len;
+    }
+
+    /* skip leading zero bytes before the AAC header */
+    while (len_udp > 0 && payload[0] == 0x00)
+    {
+        ++payload;
+        --len_udp;
+    }
+
+    if (len_udp > 0)
         fwrite(payload, 1, len_udp, stdout);
 
 }
@@ -317,9 +509,9 @@ int main(int argc, const char *argv[])
     uint32_t ip = 0;
     uint16_t port = 0;
 
-    if (argc < 3)
+    if (argc < 4)
     {
-        fprintf(stderr, "usage: %s <pid> <ip> <port>\n", argv[0]);
+        fprintf(stderr, "usage: %s <pid> <ip> <port> [uecp_ip:port]\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -341,6 +533,41 @@ int main(int argc, const char *argv[])
     psi.ip = ip;
     psi.port = port;
     psi.debug = getenv("DEBUG") ? 1 : 0;
+
+    /* Optional UECP forwarding: parse "ip:port" from argv[4] */
+    uecp_t uecp;
+    if (argc >= 5)
+    {
+        const char *arg = argv[4];
+        const char *colon = strchr(arg, ':');
+        if (!colon || colon == arg || *(colon + 1) == '\0')
+        {
+            fprintf(stderr, "invalid uecp address (expected ip:port): %s\n", arg);
+            exit(EXIT_FAILURE);
+        }
+
+        char uecp_ip[64];
+        size_t ip_len = colon - arg;
+        if (ip_len >= sizeof(uecp_ip))
+        {
+            fprintf(stderr, "UECP IP address too long\n");
+            exit(EXIT_FAILURE);
+        }
+        memcpy(uecp_ip, arg, ip_len);
+        uecp_ip[ip_len] = '\0';
+
+        memset(&uecp, 0, sizeof(uecp));
+        uecp.fd = -1;
+        uecp.addr.sin_family = AF_INET;
+        uecp.addr.sin_port = htons((uint16_t)atoi(colon + 1));
+        if (inet_pton(AF_INET, uecp_ip, &uecp.addr.sin_addr) != 1)
+        {
+            fprintf(stderr, "invalid uecp IP: %s\n", uecp_ip);
+            exit(EXIT_FAILURE);
+        }
+        fprintf(stderr, "UECP forwarding to %s:%s\n", uecp_ip, colon + 1);
+        psi.uecp = &uecp;
+    }
 
     uint8_t ts[TS_PACKET_SIZE];
     while (fread(ts, sizeof(ts), 1, stdin) == 1)
