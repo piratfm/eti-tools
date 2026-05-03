@@ -250,15 +250,19 @@ int decode_tagpacket(edi_handler_t *h, uint8_t *tag_pkt, uint32_t tagsize)
             // at least register this tag, but do nothing, prevents ""[date and time] EDI: Unknown TAG Fsid" message
             tagsuccess = true;
         }
-        else if (tagId == 0x46737374 /*"Fsst"*/) {
+        else if (tagId == 0x46737474 /*"Fsst"*/) {
             // at least register this tag, but do nothing, prevents ""[date and time] EDI: Unknown TAG Fsst" message
             tagsuccess = true;
         }
-        else if (tagId == 0x61676d74 /*"avtm"*/) {
+        else if (tagId == 0x6176746d /*"avtm"*/) {
             // at least register this tag, but do nothing, prevents ""[date and time] EDI: Unknown TAG avtm" message
             tagsuccess = true;
         }
-        else {
+		else if (tagId == 0x73746174 /*"stat"*/) {
+            // at least register this tag, but do nothing, prevents ""[date and time] EDI: Unknown TAG stat" message
+            tagsuccess = true;
+        }
+		else {
         	msg_Log("EDI: Unknown TAG %c%c%c%c", tag_pkt[i], tag_pkt[i+1], tag_pkt[i+2], tag_pkt[i+3]);
             break;
         }
