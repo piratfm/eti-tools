@@ -276,6 +276,9 @@ WDR 9A | 228.10.2.5:10010
 
 #### Germany ####
 23.5°E, 12168V, SR 27500, FEC 2/3 in DVB-S/QPSK with two different PIDs
+and
+19.2°E, 12460H, SR 27500, FEC 3/4 in DVB-S/QPSK with two different PIDs
+
 
 Ensemble | PID | IP-Address:Port
 --|--|--
