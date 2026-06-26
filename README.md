@@ -231,11 +231,14 @@ SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
 D1 Scotland | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1065 | 1166 | 12
 SDL NATL | UK  | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1063 | 1170 | 12
-RAI DAB+ | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
+RAI DAB+ National | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
+RAI DAB+ Aosta/Piedmont West | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 12 PLS: Root/16416 or PLS: Gold/131070 | 1001 | -- | 0
+MediaDAB 6D Liguria | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 21 PLS: Root/16416 or PLS: Gold/131070 | 1002 | -- | 0
+
 
 Notes: 
 
-- The RAI DAB+ only can received with a receiver/DVB card supporting ACM Multistream and higher SR. 
+- The two RAI DAB+ Multiplexes and MediaDAB only can received with a receiver/DVB card supporting ACM Multistream and higher SR. 
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
   
 
