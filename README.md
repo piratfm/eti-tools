@@ -54,11 +54,17 @@ Additional libraries which are needed:
 
 * [libfec](https://github.com/Opendigitalradio/ka9q-fec) - for Reed-Solomon FEC, may be enabled/disabled.
 
+  First check your `cmake` version:
+
+      cmake --version
+
+  If it is too new (>3.50), you will get a compiler error. Therefore, you need to add a parameter for the minimum `cmake` version to the command or adopt the `CMakeFiles.txt` accordingly.
+
       git clone https://github.com/Opendigitalradio/ka9q-fec.git
       cd ka9q-fec/
       mkdir build
       cd build/
-      cmake ..
+      cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 
       make
       sudo make install
       
