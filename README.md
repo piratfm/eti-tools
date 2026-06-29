@@ -113,7 +113,7 @@ ts2na
 
 **ts2na_dreambox.c** is a special version for Dreambox DM-500S which can be used to tune the frontend to a specific frequency. On a regular PC use [dvbstream](https://www.linuxtv.org/wiki/index.php/Dvbstream) or [MuMuDVB](https://www.linuxtv.org/wiki/index.php/Mumudvb) application to dump to `ts2na`.
 
-    usage: ./ts2na [-p pid] [-s offset] [-i <inputfile>] [-o <outputfile>]
+    usage: ./ts2na [-p pid] [-s offset] [-S skip] [-i <inputfile>] [-o <outputfile>]
 
 Default for `offset` is 12 bytes. If you get 
 
@@ -121,7 +121,9 @@ Default for `offset` is 12 bytes. If you get
 
 try one of these (currently in Europe used) values for `offset`: 0, 12 or -3. 
 
-Default for `pid` is 1062. Values for `pid` can be any other PID carrying an ETI-NA stream (e.g. 1061). In case of negative offset (`-s -3`, see above) this `pid` argument will be ignored as the DVB-S stream itself is no valid transport stream.
+If the input stream has leading bytes before the first TS packet, use `-S 1880` or `-S 18800` to skip the first 1880 or 18800 bytes (10 or 100 frames).
+
+Default for `pid` is 1062. Values for `pid` can be any other PID carrying an ETI-NA stream (e.g. 1061). In case of negative offset (`-s -3`) this `pid` argument will be ignored as the DVB-S stream itself is no valid transport stream.
 
 The output stream will be raw PID content = ETI-NA (G.704). The parameter [-s offset] must be seen in an MPEG-TS dump, in most cases that is unused 0xFF at the beginning of the each TS-packet's payload.
 
@@ -237,14 +239,14 @@ SDL NATL | UK  | 28.2ºE | 11425H | 27500 2/3 | QPSK/DVB-S | 1063 | 10590 | 12
 D1 DAB | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1062 | 1165 | 12
 D1 Scotland | UK | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1065 | 1166 | 12
 SDL NATL | UK  | 9.0ºE | 12092H | 27500 3/4 | 8PSK/DVB-S2 | 1063 | 1170 | 12
-RAI DAB+ National | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | -- | 0
-RAI DAB+ Aosta/Piedmont West | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 12 PLS: Root/16416 or PLS: Gold/131070 | 1001 | -- | 0
-MediaDAB 6D Liguria | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM Multistream 21 PLS: Root/16416 or PLS: Gold/131070 | 1002 | -- | 0
+RAI DAB+ National | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM MIS 11 PLS: Root/16416 or PLS: Gold/131070 | 1000 | 1001 | 0
+RAI DAB+ Aosta/Piedmont West | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM MIS 12 PLS: Root/16416 or PLS: Gold/131070 | 1001 | 1 | 0
+MediaDAB 6D Liguria | Italy | 5.0°W | 12564V | 35291 2/3 | 8PSK/DVB-S2 ACM MIS 21 PLS: Root/16416 or PLS: Gold/131070 | 1002 | 1000 | 0
 
 
 Notes: 
 
-- The two RAI DAB+ Multiplexes and MediaDAB only can received with a receiver/DVB card supporting ACM Multistream and higher SR. 
+- The two RAI DAB+ Multiplexes and MediaDAB can only be received with a (Linux) Set Top Box or DVB-S2 card supporting ACM Multistream (MIS) and higher SR. For those you may probably try the option `-S` and skip 10 or 100 frames (1880 or 18800 bytes).
 - The mentioned transponder on Astra 28.2 East is the UK Spotbeam.
   
 
@@ -388,7 +390,7 @@ for the Bayern Mux and output it to [dablin_gtk](https://github.com/Opendigitalr
 
 for the NRK Transponder using a suitable card (like Cine V7A or TBS6903x) and save the output into a file.
 
-    dvblast -s 35291000 -v 13 -f 12564000 -m psk_8 -3 -a 0 --multistream-id-is-id 11 -u --multistream-id-pls-mode GOLD --multistream-id-pls-code 131070 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk -L
+    dvblast -s 35291000 -v 13 -f 12564000 -m psk_8 -3 -a 0 --multistream-id-is-id 11 -u --multistream-id-pls-mode GOLD --multistream-id-pls-code 131070 | ts2na -p 1000 -s 0 -S 1880 | na2ni | dablin_gtk -L
 
 for the multistream transponder of RAI using Adapter 0 and piping to `dablin_gtk` with option `-L`. 
 
@@ -432,11 +434,11 @@ for the RAI DAB package on 5°W.
 
 ### tsduck
 
-    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 12564000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | dd if=/dev/stdin skip=188 | ts2na -p 1000 -s 0 | na2ni | dablin_gtk
+    tsp -I dvb -a 2 --delivery-system DVB-S2 --fec-inner 2/3 --frequency 12564000000 --isi 11 --modulation 8-PSK  --pls-code 131070 --pls-mode GOLD --polarity vertical --symbol-rate 35291000 | ts2na -p 1000 -s 0 -S 1880 | na2ni | dablin_gtk
 
 for the multistream transponder of RAI on 5°W using Adapter 2 and listen in `dablin_gtk`. 
 
-Remark: The first TS frame (188 bytes) is skipped in this example as the header might be corrupt otherwise.
+Remark: The first 10 TS frames (1880 bytes) are skipped in this example as the header might be corrupt otherwise.
 
 ### digris-edi-udp-converter
 
