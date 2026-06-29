@@ -17,7 +17,7 @@
  *****************************************************************************/
 static void usage(const char *psz)
 {
-    fprintf(stderr, "usage: %s [-p pid] [-s offset] [-i <inputfile>] [-o <outputfile>]\n", psz);
+    fprintf(stderr, "usage: %s [-p pid] [-s offset] [-S skip] [-i <inputfile>] [-o <outputfile>]\n", psz);
     exit(EXIT_FAILURE);
 }
     
@@ -27,17 +27,19 @@ int main(int i_argc, char **ppsz_argv)
     FILE *inputfile=stdin;
     FILE *outputfile=stdout;
     int offset=12, pid=0x0426;
+    unsigned long skip_bytes = 0;
     int i_last_cc = -1;
     
     static const struct option long_options[] = {
         { "pid",           required_argument, NULL, 'p' },
         { "offset",            required_argument,       NULL, 's' },
+        { "skip",           required_argument, NULL, 'S' },
         { "input",         required_argument,       NULL, 'i' },
         { "output",          required_argument,       NULL, 'o' },
         { 0, 0, 0, 0 }
     };
     
-    while ((c = getopt_long(i_argc, ppsz_argv, "p:s:i:o:h", long_options, NULL)) != -1)
+    while ((c = getopt_long(i_argc, ppsz_argv, "p:s:S:i:o:h", long_options, NULL)) != -1)
     {
         switch (c) {
         case 'p':
@@ -54,6 +56,10 @@ int main(int i_argc, char **ppsz_argv)
                 ERROR("bad offset value: %d!", offset);
                 exit(1);
             }
+            break;
+
+        case 'S':
+            skip_bytes = strtoul(optarg, NULL, 0);
             break;
 
         case 'i':
@@ -79,6 +85,18 @@ int main(int i_argc, char **ppsz_argv)
         }
     }
 
+    if(skip_bytes) {
+        uint8_t skipbuf[4096];
+        while(skip_bytes) {
+            size_t chunk = skip_bytes > sizeof(skipbuf) ? sizeof(skipbuf) : skip_bytes;
+            size_t read_bytes = fread(skipbuf, 1, chunk, inputfile);
+            if(read_bytes != chunk) {
+                ERROR("cant skip %lu bytes!", skip_bytes);
+                exit(1);
+            }
+            skip_bytes -= read_bytes;
+        }
+    }
 
     INFO("Using pid: 0x%04x (%d)", pid, pid);
     unsigned long int packets=0;
