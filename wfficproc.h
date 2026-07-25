@@ -21,6 +21,13 @@
 
 #include "figs.h"
 
+typedef enum {
+    DISP_ENSEMBLE_SORT_START_CU = 0,
+    DISP_ENSEMBLE_SORT_SID,
+    DISP_ENSEMBLE_SORT_SUBCH,
+    DISP_ENSEMBLE_SORT_BITRATE
+} disp_ensemble_sort_t;
+
 int process_fic2(unsigned char *msc_ptr, int ficl, int mode_id);
 
 extern struct service* find_service(struct ens_info*, int);
@@ -29,4 +36,5 @@ extern int add_subchannel(struct ens_info*, struct subch *);
 
 int ficinit(struct ens_info *);
 int labelled(struct ens_info*);
+void set_disp_ensemble_sort(disp_ensemble_sort_t sort_mode);
 int disp_ensemble(struct ens_info* e);

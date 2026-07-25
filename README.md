@@ -211,12 +211,19 @@ ETI ni2out
 
 ETI-NI streams from terrestrial DAB(+) ensembles can also be created by [eti-stuff](https://github.com/JvanKatwijk/eti-stuff) or [dabtools](https://github.com/Opendigitalradio/dabtools). For satellite feeds see above.
 
-    usage: ./ni2out [--list] [--delay] [-i <inputfile>] [-s <SID>]
+    usage: ./ni2out [--list] [--delay] [--sort-by-start-cu|--sort-by-sid|--sort-by-subch|--sort-by-bitrate] [-i <inputfile>] [-s <SID>]
 
 Use `--list` option to find SIDs and station names inside the ETI stream. If you wish to write the stream to stdout, then use `ni2out --sid <SID>`. 
 The `--delay` option has to be used for offline-relaying (from the file, not from the stream). So in that case the application will wait 24ms after each ETI frame in order to make pseudo-realtime streaming.
 
 To get a list of audio service IDs, use `ni2out --list -i <inputfile>`
+
+When using `--list`, you can change sort order with one of these options:
+
+- `--sort-by-start-cu` (default)
+- `--sort-by-sid`
+- `--sort-by-subch`
+- `--sort-by-bitrate`
 
 
 Satellite DAB(+) feeds

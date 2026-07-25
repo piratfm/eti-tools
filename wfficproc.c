@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 //#include "wfic/wfic.h"
-#include "figs.h"
+#include "wfficproc.h"
 #include "prot.h"
 
 /* DEBUG:
@@ -45,9 +45,16 @@ void msc_assemble(char*, unsigned char*, unsigned char*, struct subch*, struct s
 int wfgetnum(char *);
 struct ens_info einf;
 
+static disp_ensemble_sort_t g_disp_sort_mode = DISP_ENSEMBLE_SORT_START_CU;
+
 
 unsigned char selstr[10];
 int fibcnt = 0;
+
+void set_disp_ensemble_sort(disp_ensemble_sort_t sort_mode)
+{
+	g_disp_sort_mode = sort_mode;
+}
 
 
 int ficinit(struct ens_info *einf)
@@ -186,11 +193,70 @@ int disp_ensemble(struct ens_info* e)
 	int i = 0;
 	char *eeptype[] = {"eep-1a","eep-2a","eep-3a","eep-4a",
 			   "eep-1b","eep-2b","eep-3b","eep-4b"};
+	struct service **sorted = NULL;
+	int sort_count = 0;
+	int sort_idx, sort_jdx;
 
 	fprintf(stderr,"%s (%#04hx)\n",e->label,e->eid);
 	p = e->srv;
-
 	while (p != NULL) {
+		sort_count++;
+		p = p->next;
+	}
+
+	if (sort_count > 0) {
+		sorted = (struct service**)malloc(sizeof(struct service*) * sort_count);
+		if (sorted != NULL) {
+			p = e->srv;
+			sort_idx = 0;
+			while (p != NULL) {
+				sorted[sort_idx++] = p;
+				p = p->next;
+			}
+
+			for (sort_idx = 0; sort_idx < sort_count - 1; sort_idx++) {
+				for (sort_jdx = sort_idx + 1; sort_jdx < sort_count; sort_jdx++) {
+					int left_key = 0;
+					int right_key = 0;
+					struct service *left = sorted[sort_idx];
+					struct service *right = sorted[sort_jdx];
+
+					switch (g_disp_sort_mode) {
+					case DISP_ENSEMBLE_SORT_SID:
+						left_key = left->sid;
+						right_key = right->sid;
+						break;
+					case DISP_ENSEMBLE_SORT_SUBCH:
+						left_key = (left->pa != NULL) ? left->pa->subchid : 0x7fffffff;
+						right_key = (right->pa != NULL) ? right->pa->subchid : 0x7fffffff;
+						break;
+					case DISP_ENSEMBLE_SORT_BITRATE:
+						left_key = (left->pa != NULL) ? left->pa->bitrate : 0x7fffffff;
+						right_key = (right->pa != NULL) ? right->pa->bitrate : 0x7fffffff;
+						break;
+					case DISP_ENSEMBLE_SORT_START_CU:
+					default:
+						left_key = (left->pa != NULL) ? left->pa->startaddr : 0x7fffffff;
+						right_key = (right->pa != NULL) ? right->pa->startaddr : 0x7fffffff;
+						break;
+					}
+
+					if (left_key > right_key || (left_key == right_key && left->sid > right->sid)) {
+						struct service *tmp = sorted[sort_idx];
+						sorted[sort_idx] = sorted[sort_jdx];
+						sorted[sort_jdx] = tmp;
+					}
+				}
+			}
+		}
+	}
+
+	if (sorted != NULL)
+		sort_idx = 0;
+
+	while ((sorted != NULL && sort_idx < sort_count) || (sorted == NULL && p != NULL)) {
+		if (sorted != NULL)
+			p = sorted[sort_idx++];
 		fprintf(stderr,"%2d : ",i++);
 		if (strlen(p->label) != 0)
 			fprintf(stderr,"%16s (%#04x) ",p->label,p->sid);
@@ -216,10 +282,14 @@ int disp_ensemble(struct ens_info* e)
 					fprintf(stderr," DAB+");
 			}
 		}
-		p = p->next;
+		if (sorted == NULL)
+			p = p->next;
 		fprintf(stderr,"\n");
 		fflush(stderr);
 	}
+
+	if (sorted != NULL)
+		free(sorted);
 	return 0;
 }
 

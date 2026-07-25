@@ -60,7 +60,7 @@ extern struct ens_info einf;
 
 static void usage(const char *psz)
 {
-    fprintf(stderr, "usage: %s [--list] [--delay] [-i <inputfile>] [-s SID]\n", psz);
+	fprintf(stderr, "usage: %s [--list] [--delay] [--sort-by-start-cu|--sort-by-sid|--sort-by-subch|--sort-by-bitrate] [-i <inputfile>] [-s SID]\n", psz);
     exit(EXIT_FAILURE);
 }
 
@@ -810,6 +810,7 @@ int process_stc(uint8_t *msc_ptr, uint8_t *stc_ptr, int idx, int prev_len)
 int main(int i_argc, char **ppsz_argv)
 {   
     int i, c, list=0, config_parsed=0, delay=0;
+	disp_ensemble_sort_t list_sort_mode = DISP_ENSEMBLE_SORT_START_CU;
     FILE *inputfile=stdin;
 
 	for (i=0;i<MAX_CU_COUNT;i++) channel_map[i]=NULL;
@@ -836,6 +837,10 @@ int main(int i_argc, char **ppsz_argv)
         { "sid",           required_argument,       NULL, 's' },
         { "delay",        no_argument,               NULL, 'd' },
         { "list",        no_argument,       		NULL, 'l' },
+		{ "sort-by-start-cu", no_argument,          NULL, 1000 },
+		{ "sort-by-sid",      no_argument,          NULL, 1001 },
+		{ "sort-by-subch",    no_argument,          NULL, 1002 },
+		{ "sort-by-bitrate",  no_argument,          NULL, 1003 },
         { 0, 0, 0, 0 }
     };
 
@@ -861,6 +866,18 @@ int main(int i_argc, char **ppsz_argv)
         case 'd':
         	delay=1;
             break;
+		case 1000:
+			list_sort_mode = DISP_ENSEMBLE_SORT_START_CU;
+			break;
+		case 1001:
+			list_sort_mode = DISP_ENSEMBLE_SORT_SID;
+			break;
+		case 1002:
+			list_sort_mode = DISP_ENSEMBLE_SORT_SUBCH;
+			break;
+		case 1003:
+			list_sort_mode = DISP_ENSEMBLE_SORT_BITRATE;
+			break;
         case 'h':
         default:
             usage(ppsz_argv[0]);
@@ -887,6 +904,7 @@ int main(int i_argc, char **ppsz_argv)
 	unsigned long int count = 0;
 
 	ficinit(&einf);
+	set_disp_ensemble_sort(list_sort_mode);
 	struct timeval diff1, diff2, startTV, endTV;
 	if(delay)
 		gettimeofday(&startTV, NULL);
