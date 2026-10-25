@@ -169,13 +169,26 @@ If you want to input from a recorded file (for instance with the PID 101 from th
 
 ETI bbfedi2eti
 ----------------
-**bbfedi2eti** is similar to edi2eti (see above), but it reads the input from a recorded baseband stream or stream (each bbframe starting with an added 0xB8 byte) that contain GSE UDP ipv4 data.
+**bbfedi2eti** converts EDI/PFT packets to ETI from 
 
-    usage: [input from file or stream] | ./bbfedi2eti -dst-ip 239.199.2.8 -dst-port 60017 | [output to dablin or ODR-DabMux]
+a) raw IP/Ethernet streams, 
+b) pcap captures, or 
+c) GSE/IP carried in DVB-S2 BBFRAMEs. 
 
-If you want to input from a recorded file use
+It automatically detects these input formats, including the legacy BBFRAME stream format (TBS6903x) with a `0xB8` sync byte before each BBHEADER. The detected format is printed to stderr so ETI data on stdout remains binary-safe. Use `--bbframe` to force unprefixed BBFRAME input if automatic detection is not possible.
 
-    cat foo.bbf
+    usage: [input file or stream] | ./bbfedi2eti [options] | [output to dablin or ODR-DabMux]
+
+For existing `0xB8`-prefixed baseband recordings and raw IP/Ethernet or pcap input:
+
+    cat recording.bbf | ./bbfedi2eti -dst-ip [ip] -dst-port [port] | dablin
+    cat recording.pcap | ./bbfedi2eti --dst-ip [ip] --dst-port [port] | dablin
+
+For a raw DVB-S2 BBFRAME recording (TBS recorder) that carries GSE/IP (detected automatically):
+
+    cat recording.gse | ./bbfedi2eti --dst-ip [ip] --dst-port [port] | dablin
+
+Use `--src-ip`, `--dst-ip`, `--src-port`, and `--dst-port` as needed to select a stream; `--mis` selects a BBFRAME input stream identifier. UDP checksums are validated by default; `--allow-bad-udp-checksum` can be used to inspect damaged captures, but corrupted PFT fragments will still fail EDI reassembly checks.
 
 mpe2ts, mpe2aac, mpe2mpa
 ------------------------
@@ -323,7 +336,7 @@ Salisbury | 239.232.1.201:2048
 
 ### DAB-Ensembles in DVB-GSE
 
-The format is EDI, but the reception is limited to very few (professional) equipment containing an STiD135 chip, like TBS 6903-X or Digital Devices Cine S2 V7A (both for PCIe only), as this is [DVB-GSE](https://dvb.org/?standard=generic-stream-encapsulation-gse-part-1-protocol). 
+The format is EDI, but the reception is limited to very few (professional) equipment containing an STiD135 chip, like TBS 6903-X or Digital Devices Cine S2 V7A (both for PCIe only), or TBS5927 (see comment below) as this is [DVB-GSE](https://dvb.org/?standard=generic-stream-encapsulation-gse-part-1-protocol). 
 
 You need to create the file `/etc/modprobe.d/stid135.conf` (as root) with the following content:
 
@@ -331,7 +344,11 @@ You need to create the file `/etc/modprobe.d/stid135.conf` (as root) with the fo
 options stid135 bbframe=1
 ```
 
-| :warning: All other cards using a different chip (including the popular TBS 5927) **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream. |
+For the (very common) TBS5927 there is an offline work-around by capturing the NRK transponder with TBS Recorder (Windows) and processing it with `bbfedi2eti` from October 2026 or later.
+
+The TBS5927SE is untested, as it is too new.
+
+| :warning: All other cards using a different chip **cannot** handle the bbframes at all and will **not** work for GSE streams. You might only get some fragments, but not a continuous data stream. |
 | --- |
 
 Note, you will need at least one of the below mentioned tools:
@@ -358,6 +375,8 @@ NRK Reg6 TrøMøRo | 239.199.2.6:1234
 NRK Reg7 NoTrFi | 239.199.2.7:1234
 Riks (12D) | 239.199.2.8:1234
 
+#### Spain ####
+30.0°W, transponder data not known yet, will start in 2027, containing 52 local muxes from public broadcaster RNE.
 
 ### Ensembles working with tsniv2ni
 
@@ -527,4 +546,3 @@ Use DABlin to consume the MPEG-TS from udp://@239.1.1.10:1234 and tune the ensem
 ```
 socat UDP4-RECV:5018,bind=239.1.1.10,ip-add-membership=239.1.1.10:eth0,reuseaddr - | ts2na -p 1062 -s 12 | na2ni | dablin_gtk
 ```
-
